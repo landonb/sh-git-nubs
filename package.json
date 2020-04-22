@@ -1,0 +1,8 @@
+{
+  "name": "sh-git-nubs",
+  "version": "0.0.1",
+  "description": "Bits of reusable Git and GitHub shell codes",
+  "scripts": [ "bin/git-nubs.sh" ],
+  "install": "make install",
+}
+
