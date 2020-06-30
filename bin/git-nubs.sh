@@ -101,7 +101,7 @@ git_versions_tagged_for_commit () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-GITFLU_RE_VERSION_TAG='[v0-9][0-9.]*'
+GITSMART_RE_VERSION_TAG='[v0-9][0-9.]*'
 
 git_last_version_tag_describe () {
   # By default, git-describe returns a commit-ish object representing the same
@@ -113,7 +113,7 @@ git_last_version_tag_describe () {
   # So specify an --abbrev=0 to "suppress long format, only showing the closest tag."
   # And note that I don't see a difference with --long or not. Not sure why I added.
   # But it cannot be used with --abbrev=0. So easy to decide what to do. Not use it.
-  git describe --tags --abbrev=0 --match "${GITFLU_RE_VERSION_TAG}" 2> /dev/null
+  git describe --tags --abbrev=0 --match "${GITSMART_RE_VERSION_TAG}" 2> /dev/null
 }
 
 git_last_version_tag_describe_safe () {
@@ -122,16 +122,16 @@ git_last_version_tag_describe_safe () {
 
 # Unused...
 if false; then
-  GITFLU_RE_LONG_TAG_PARTS='([^-]+)-([^-]+)-(.*)'
+  GITSMART_RE_LONG_TAG_PARTS='([^-]+)-([^-]+)-(.*)'
 
   git_last_version_name () {
     local described="$(git_last_version_tag_describe_safe)"
-    echo ${described} | /bin/sed -E "s/${GITFLU_RE_LONG_TAG_PARTS}/\1/g"
+    echo ${described} | /bin/sed -E "s/${GITSMART_RE_LONG_TAG_PARTS}/\1/g"
   }
 
   git_last_version_dist () {
     local described="$(git_last_version_tag_describe_safe)"
-    echo ${described} | /bin/sed -E "s/${GITFLU_RE_LONG_TAG_PARTS}/\2/g"
+    echo ${described} | /bin/sed -E "s/${GITSMART_RE_LONG_TAG_PARTS}/\2/g"
   }
 
   git_last_version_absent () {
