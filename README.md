@@ -11,16 +11,16 @@ E.g.,
   ```shell
   $ . git-nubs.sh
 
-  $ git_branch_exists "my-branch" || >&2 echo "No such branch"
+  $ git_branch_exists "branch-name" || >&2 echo "No such branch"
   No such branch
 
   $ git_branch_name
-  master
+  some-branch
 
-  $ git_remote_exists "some-remote" || >&2 echo "No such remote"
+  $ git_remote_exists "remote-name" || >&2 echo "No such remote"
   No such remote
 
-  $ git_remote_branch_exists "origin" "master" && echo "It does exist!"
+  $ git_remote_branch_exists "some-remote" "some-branch" && echo "It does exist!"
   It does exist!
 
   $ git_insist_git_repo || >&2 echo "This is not a repo!"

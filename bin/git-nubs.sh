@@ -188,8 +188,8 @@ github_purge_release_and_tags_of_same_name () {
   # GitHub release if user wants, and remove tag from remote if points
   # to different commit and user approves.
 
-  # See also, for a list of all tags, e.g.,:
-  #   git ls-remote --tags origin
+  # See also, for a list of all tags on a remote, e.g., the one named 'release':
+  #   git ls-remote --tags release
   # Note that we can restrict to tags with a fuller path, or with an --option.
   #   git ls-remote ${R2G2P_REMOTE} refs/tags/${RELEASE_VERSION}
   #   git ls-remote ${R2G2P_REMOTE} --tags ${RELEASE_VERSION}
