@@ -21,7 +21,17 @@ git_branch_name () {
     echo "<?!>"
     return
   fi
-  local branch_name=$(git rev-parse --abbrev-ref HEAD)
+  # 2020-09-21: (lb): Adding `=loose`:
+  # - For whatever reason, I'm seeing this behavior:
+  #   - On Linux, `git rev-parse --abbrev-ref` returns simply, e.g., "my_branch".
+  #   - But on macOS, rev-parse returns a more qualified name, "heads/my_branch".
+  # - I think that's because, on macOS (for whatever reason), there are two
+  #   remote refs: .git/refs/remotes/release/HEAD
+  #           and: .git/refs/remotes/release/release
+  # - Use `loose` option to remove the "heads/" prefix, e.g.,
+  #      $ git rev-parse --abbrev-ref=loose   # Prints, e.g., "my_branch"
+  #      $ git rev-parse --abbrev-ref=strict  # Prints, e.g., "heads/my_branch"
+  local branch_name=$(git rev-parse --abbrev-ref=loose HEAD)
   echo "${branch_name}"
 }
 
