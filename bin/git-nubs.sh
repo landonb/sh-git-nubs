@@ -32,7 +32,7 @@ git_branch_name () {
   #      $ git rev-parse --abbrev-ref=loose   # Prints, e.g., "my_branch"
   #      $ git rev-parse --abbrev-ref=strict  # Prints, e.g., "heads/my_branch"
   local branch_name=$(git rev-parse --abbrev-ref=loose HEAD)
-  echo "${branch_name}"
+  printf %s "${branch_name}"
 }
 
 git_remote_exists () {
@@ -127,7 +127,7 @@ git_last_version_tag_describe () {
 }
 
 git_last_version_tag_describe_safe () {
-  git_last_version_tag_describe || echo '0.0.0-✗-g0000000'
+  git_last_version_tag_describe || printf '0.0.0-✗-g0000000'
 }
 
 # Unused...
@@ -136,12 +136,12 @@ if false; then
 
   git_last_version_name () {
     local described="$(git_last_version_tag_describe_safe)"
-    echo ${described} | /bin/sed -E "s/${GITSMART_RE_LONG_TAG_PARTS}/\1/g"
+    printf "${described}" | /bin/sed -E "s/${GITSMART_RE_LONG_TAG_PARTS}/\1/g"
   }
 
   git_last_version_dist () {
     local described="$(git_last_version_tag_describe_safe)"
-    echo ${described} | /bin/sed -E "s/${GITSMART_RE_LONG_TAG_PARTS}/\2/g"
+    printf "${described}" | /bin/sed -E "s/${GITSMART_RE_LONG_TAG_PARTS}/\2/g"
   }
 
   git_last_version_absent () {
@@ -207,9 +207,10 @@ github_purge_release_and_tags_of_same_name () {
   # NOTE: This call takes a moment. (lb): Must be contacting the remote?
   # NOTE: Use default `cut` delimiter, TAB.
   local remote_tag_hash
-  /usr/bin/env echo -n "Send remote request: ‘git ls-remote --tags ${R2G2P_REMOTE} ${RELEASE_VERSION}’..."
+  printf '%s' \
+    "Send remote request: ‘git ls-remote --tags ${R2G2P_REMOTE} ${RELEASE_VERSION}’..."
   remote_tag_hash="$(git ls-remote --tags ${R2G2P_REMOTE} ${RELEASE_VERSION} | cut -f1)"
-  echo " ${remote_tag_hash}"
+  printf '%s\n' " ${remote_tag_hash}"
 
   local tag_commit_hash
   R2G2P_DO_PUSH_TAG=false
@@ -232,7 +233,7 @@ github_purge_release_and_tags_of_same_name () {
       echo "    release tag ref.  ${R2G2P_COMMIT}"
       echo "    remote tag ref..  ${tag_commit_hash}"
       echo
-      /usr/bin/env echo -n "Would you like to delete the old remote tag? [y/N] "
+      printf %s "Would you like to delete the old remote tag? [y/N] "
       # USER_PROMPT
       ${SKIP_PROMPTS:-false} && the_choice='n' || read -e the_choice
       if [ "${the_choice}" = "y" ] || [ "${the_choice}" = "Y" ]; then
