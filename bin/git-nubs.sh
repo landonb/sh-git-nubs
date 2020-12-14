@@ -138,8 +138,21 @@ git_versions_tagged_for_commit () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-GITSMART_RE_VERSION_TAG='[v0-9][0-9.]*'
+# FIXME/2020-12-13 23:44: See git-bump-version-tag's GITSMART_RE_VERSION_TAG
+# - Because glob, this could match similar-looking tags, e.g., date-prefixed,
+#   such as 2020-12-13-some-tag.
+#
+# This is matches anything starting with two numbers,
+# of v and a number, or v and a period, so not really
+# what's probably intended:
+#   GITSMART_RE_VERSION_TAG='[v0-9][0-9.]*'
+GITSMART_RE_VERSION_TAG='[v0-9]*'
 
+# FIXME/2020-12-13 23:43: Would you want `latest_version_basetag` here instead?
+# - The two functions might be doing same thing, and latest_version_basetag is
+#   more hardened, I think... although it might also find tags in whole project,
+#   and not just current branch like this function does?
+#
 git_last_version_tag_describe () {
   # By default, git-describe returns a commit-ish object representing the same
   # commit as the referenced commit (which defaults to HEAD). The described name
@@ -152,6 +165,22 @@ git_last_version_tag_describe () {
   # But it cannot be used with --abbrev=0. So easy to decide what to do. Not use it.
   git describe --tags --abbrev=0 --match "${GITSMART_RE_VERSION_TAG}" 2> /dev/null
 }
+
+# The git-tag pattern is a simple glob, so use extra grep to really filter.
+GITSMART_RE_GREPFILTER='^[0-9]\+\.[0-9.]\+$'
+
+# Match groups: \1: major * \2: minor * \4: patch * \5: seppa * \6: alpha.
+GITSMART_RE_VERSPARTS='^v?([0-9]+)\.([0-9]+)(\.([0-9]+)([^0-9]*)(.*))?'
+
+latest_version_basetag () {
+  git tag -l "${GITSMART_RE_VERSION_TAG}" |
+    grep -e "${GITSMART_RE_GREPFILTER}" |
+    /usr/bin/env sed -E "s/${GITSMART_RE_VERSPARTS}/\1.\2.\4/" |
+    sort -r --version-sort |
+    head -n1
+}
+
+# ***
 
 git_last_version_tag_describe_safe () {
   git_last_version_tag_describe || printf '0.0.0-✗-g0000000'
