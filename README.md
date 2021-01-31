@@ -33,11 +33,14 @@ E.g.,
   $ git_last_version_tag_describe
   0.0.1
 
-  $ git_last_version_epoch_ts
-  1587432645
-
-  $ git_since_init_epoch_ts
+  $ git_since_git_init_commit_epoch_ts
   1450540432
+
+  $ git_since_latest_version_tag_epoch_ts
+  1547432645
+
+  $ git_since_most_recent_commit_epoch_ts
+  1687439645
   ```
 
 ## Installation

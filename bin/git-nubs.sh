@@ -150,7 +150,11 @@ if false; then
   }
 fi
 
-git_last_version_epoch_ts () {
+git_since_most_recent_commit_epoch_ts () {
+  git --no-pager log -1 --format=%at HEAD 2> /dev/null
+}
+
+git_since_latest_version_tag_epoch_ts () {
   # Note that the "described" tag output (e.g., 0.12.0-828-g0266e06) is a
   # valid revision (per `man 7 gitrevisions`), which can be fed to git-log.
   # - And to compute a time delta from then to now, get seconds since epoch:
@@ -163,7 +167,7 @@ git_last_version_epoch_ts () {
     2> /dev/null
 }
 
-git_since_init_epoch_ts () {
+git_since_git_init_commit_epoch_ts () {
   # Note that the "described" tag output (e.g., 0.12.0-828-g0266e06) is a
   # valid revision (per `man 7 gitrevisions`), which can be fed to git-log.
   # - And to compute a time delta from then to now, get seconds since epoch:
