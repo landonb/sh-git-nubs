@@ -31,6 +31,8 @@ git_branch_name () {
   # - Use `loose` option to remove the "heads/" prefix, e.g.,
   #      $ git rev-parse --abbrev-ref=loose   # Prints, e.g., "my_branch"
   #      $ git rev-parse --abbrev-ref=strict  # Prints, e.g., "heads/my_branch"
+  # - See also:
+  #      $ git symbolic-ref --short HEAD
   local branch_name=$(git rev-parse --abbrev-ref=loose HEAD)
   printf %s "${branch_name}"
 }
