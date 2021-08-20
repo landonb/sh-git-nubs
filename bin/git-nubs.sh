@@ -39,6 +39,10 @@ git_branch_name () {
   printf %s "${branch_name}"
 }
 
+git_HEAD_commit_sha () {
+  git rev-parse HEAD
+}
+
 git_remote_exists () {
   local remote="$1"
 
@@ -98,7 +102,7 @@ git_insist_pristine () {
 git_versions_tagged_for_commit () {
   local hash="$1"
   if [ -z "${hash}" ]; then
-    hash="$(git rev-parse HEAD)"
+    hash="$(git_HEAD_commit_sha)"
   fi
 
   # Without -d/--dereference, hash shown is tag object, not commit.
