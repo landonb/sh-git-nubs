@@ -56,6 +56,15 @@ git_remote_branch_exists () {
   git show-branch remotes/${remote}/${branch} &> /dev/null
 }
 
+git_tracking_branch () {
+  git rev-parse --abbrev-ref --symbolic-full-name @{u} 2> /dev/null
+}
+
+git_tracking_branch_safe () {
+  # Because errexit, fallback on empty string.
+  git_tracking_branch || echo ''
+}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # Check that the current directory exists in a Git repo.
