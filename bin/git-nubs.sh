@@ -19,6 +19,7 @@ git_branch_name () {
   # - Note that `test ""` returns false; `test "foo"` returns true.
   if [ ! "$(command ls -A "${project_root}/.git/refs/heads")" ]; then
     echo "<?!>"
+
     return
   fi
   # 2020-09-21: (lb): Adding `=loose`:
@@ -34,17 +35,20 @@ git_branch_name () {
   # - See also:
   #      $ git symbolic-ref --short HEAD
   local branch_name=$(git rev-parse --abbrev-ref=loose HEAD)
+
   printf %s "${branch_name}"
 }
 
 git_remote_exists () {
   local remote="$1"
+
   git remote get-url ${remote} &> /dev/null
 }
 
 git_remote_branch_exists () {
   local remote="$1"
   local branch="$2"
+
   git show-branch remotes/${remote}/${branch} &> /dev/null
 }
 
@@ -60,25 +64,32 @@ git_insist_git_repo () {
   #   command ls -A ".git/refs/heads"
   # And the better porcelain command checks for HEAD.
   git rev-parse --abbrev-ref HEAD &> /dev/null && return 0
+
   local projpath="${1:-$(pwd)}"
+
   local errmsg
   if git rev-parse --show-toplevel &> /dev/null; then
     errmsg="Specified Git project has no commits"
   else
     errmsg="Specified directory not a Git project"
   fi
+
   >&2 echo "ERROR: ${errmsg}: ${projpath}"
+
   return 1
 }
 
 git_insist_pristine () {
   ! test -n "$(git status --porcelain)" && return 0
+
   local projpath="${1:-$(pwd)}"
+
   >&2 echo
   >&2 echo "ERROR: Project working directory not tidy! Try:"
   >&2 echo
   >&2 echo "   cd ${projpath} && git status"
   >&2 echo
+
   return 1
 }
 
@@ -89,6 +100,7 @@ git_versions_tagged_for_commit () {
   if [ -z "${hash}" ]; then
     hash="$(git rev-parse HEAD)"
   fi
+
   # Without -d/--dereference, hash shown is tag object, not commit.
   # With -d, prints 2 lines per tag, e.g., suppose 2 tags on one commit:
   #   $ git show-ref --tags -d
@@ -239,15 +251,18 @@ github_purge_release_and_tags_of_same_name () {
       echo "    release tag ref.  ${R2G2P_COMMIT}"
       echo "    remote tag ref..  ${tag_commit_hash}"
       echo
+
       printf %s "Would you like to delete the old remote tag? [y/N] "
-      # USER_PROMPT
+
       ${SKIP_PROMPTS:-false} && the_choice='n' || read -e the_choice
+
       if [ "${the_choice}" = "y" ] || [ "${the_choice}" = "Y" ]; then
         R2G2P_DO_PUSH_TAG=true
       else
         >&2 echo
         >&2 echo "ERROR: Tag ‘${RELEASE_VERSION}’ mismatch on ‘${R2G2P_REMOTE}’."
         >&2 echo
+
         return 1
       fi
     fi
@@ -259,7 +274,9 @@ github_purge_release_and_tags_of_same_name () {
     #       But that syntax might also delete a branch of the same name.
     #       So be :obtuse, and be specific about what's being deleted.
     local gpr_args="${R2G2P_REMOTE} :refs/tags/${RELEASE_VERSION}"
+
     echo "Deleting Remote Tag: ‘${gpr_args}’"
+
     # Uncomment to debug:
     #   set -x  # xtrace_beg
     git push ${gpr_args}
