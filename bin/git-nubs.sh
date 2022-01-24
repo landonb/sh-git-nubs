@@ -121,6 +121,8 @@ git_versions_tagged_for_commit () {
   #   7ca83ee766d31181b34e6aafb340f537e2cc0d6f refs/tags/v1.2.3^{}
   #   2aadd869b4ff4acc945b073a70be7e6573341ebc refs/tags/v1.2.3a3
   #   7ca83ee766d31181b34e6aafb340f537e2cc0d6f refs/tags/v1.2.3a3^{}
+  # (Note that the pattern matches looser than semantic versioning spec,
+  #  e.g., "v1.2.3a3" is not valid SemVer, but "1.2.3-a3" is.)
   # Where:
   #   $ git cat-file -t af6ec9a9ae01592d36d06917e47b8ee9822178a7
   #   tag
@@ -138,10 +140,66 @@ git_versions_tagged_for_commit () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-GITSMART_RE_VERSION_TAG='[v0-9][0-9.]*'
+# Return the latest version tag (per Semantic Versioning rules).
 
-git_last_version_tag_describe_safe () {
-  git_last_version_tag_describe || printf '0.0.0-✗-g0000000'
+# Note that git-tag only accepts a glob(7), and not a regular expression,
+# so we'll filter with grep to pick out the latest version tag. (Meaning,
+# the glob is unnecessary, because grep does all the work, but whatever.)
+
+# Use git-tag's simple glob to first filter on tags starting with 'v' or 0-9.
+GITSMART_GLOB_VERSION_TAG='[v0-9]*'
+# DEV: Copy-paste test snippet:
+#   git --no-pager tag -l "${GITSMART_GLOB_VERSION_TAG}"
+
+# Match groups: \1: major
+#               \2: minor
+#               \3: \4\5\6
+#               \4: patch
+#               \5: separator (non-digit)
+#               \6: pre-release and/or build, aka the rest.
+# Note that this is not strictly Semantic Versioning compliant:
+# - It allows a leading 'v', which is a convention some people use
+#   (and that the author used to use but has since stopped using);
+# - It allows for a pre-release/build part that includes characters
+#   that SemVer does not allow, which is limited to [-a-zA-Z0-9].
+GITSMART_RE_VERSPARTS='^v?([0-9]+)\.([0-9]+)(\.([0-9]+)([^0-9]*)(.*))?'
+
+git_latest_version_basetag () {
+  git tag -l "${GITSMART_GLOB_VERSION_TAG}" |
+    grep -E -e "${GITSMART_RE_VERSPARTS}" |
+    /usr/bin/env sed -E "s/${GITSMART_RE_VERSPARTS}/\1.\2.\4/" |
+    sort -r --version-sort |
+    head -n1
+}
+
+latest_version_fulltag () {
+  local basevers="$1"
+
+  git tag -l "${basevers}*" -l "v${basevers}*" |
+    /usr/bin/env sed -E "s/${GITSMART_RE_VERSPARTS}/\6,\1.\2.\4\5\6/" |
+    sort -r -n |
+    head -n1 |
+    /usr/bin/env sed -E "s/^[^,]*,//"
+}
+
+git_latest_version_tag () {
+  local basevers="$(git_latest_version_basetag)"
+
+  # See if basevers really tagged or if gleaned from alpha.
+  if git show-ref --tags -- "${basevers}" > /dev/null; then
+    fullvers="${basevers}"
+  else
+    # Assemble alpha-number-prefixed versions to sort and grab largest alpha.
+    fullvers="$(latest_version_fulltag "${basevers}")"
+  fi
+
+  [ -z "${fullvers}" ] || echo "${fullvers}"
+}
+
+# ***
+
+git_latest_version_basetag_safe () {
+  git_latest_version_basetag || printf '0.0.0-✗-g0000000'
 }
 
 git_since_most_recent_commit_epoch_ts () {
@@ -157,7 +215,7 @@ git_since_latest_version_tag_epoch_ts () {
   git --no-pager \
     log -1 \
     --format=%at \
-    "$(git_last_version_tag_describe_safe)" \
+    "$(git_latest_version_basetag_safe)" \
     2> /dev/null
 }
 
