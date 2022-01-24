@@ -140,19 +140,6 @@ git_versions_tagged_for_commit () {
 
 GITSMART_RE_VERSION_TAG='[v0-9][0-9.]*'
 
-git_last_version_tag_describe () {
-  # By default, git-describe returns a commit-ish object representing the same
-  # commit as the referenced commit (which defaults to HEAD). The described name
-  # is the tag name, followed by the number of commits between it and the commit
-  # referenced, and finally suffixed with a 'g' and part of the referenced SHA.
-  # E.g., `git describe --tags --long --match '[v0-9][0-9.]*'` might return:
-  #       "0.12.0-828-g0266e06".
-  # So specify an --abbrev=0 to "suppress long format, only showing the closest tag."
-  # And note that I don't see a difference with --long or not. Not sure why I added.
-  # But it cannot be used with --abbrev=0. So easy to decide what to do. Not use it.
-  git describe --tags --abbrev=0 --match "${GITSMART_RE_VERSION_TAG}" 2> /dev/null
-}
-
 git_last_version_tag_describe_safe () {
   git_last_version_tag_describe || printf '0.0.0-✗-g0000000'
 }
