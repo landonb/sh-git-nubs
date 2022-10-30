@@ -46,6 +46,10 @@ git_HEAD_commit_sha () {
   git rev-parse HEAD
 }
 
+git_first_commit_sha () {
+  git rev-list --max-parents=0 HEAD
+}
+
 git_remote_exists () {
   local remote="$1"
 
