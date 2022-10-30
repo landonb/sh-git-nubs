@@ -60,7 +60,15 @@ git_remote_branch_exists () {
   local remote="$1"
   local branch="$2"
 
-  git show-branch remotes/${remote}/${branch} &> /dev/null
+  local remote_branch
+  if [ -z "${branch}" ]; then
+    # Assume caller passed in remote/branch.
+    remote_branch="${remote}"
+  else
+    remote_branch="${remote}/${branch}"
+  fi
+
+  git show-branch "remotes/${remote_branch}" &> /dev/null
 }
 
 git_tracking_branch () {
