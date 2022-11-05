@@ -130,6 +130,25 @@ git_insist_pristine () {
   return 1
 }
 
+git_nothing_staged () {
+  git diff --cached --quiet
+}
+
+git_insist_nothing_staged () {
+  ! git_nothing_staged || return 0
+
+  local projpath="${1:-$(pwd)}"
+
+  >&2 echo
+  >&2 echo "ERROR: Working directory has staged changes."
+  >&2 echo "- HINT: Try:"
+  >&2 echo
+  >&2 echo "   cd \"${projpath}\" && git status"
+  >&2 echo
+
+  return 1
+}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 git_versions_tagged_for_commit () {
