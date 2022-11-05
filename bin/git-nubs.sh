@@ -12,7 +12,9 @@ git_branch_exists () {
 }
 
 git_branch_name () {
-  local project_root="$(git rev-parse --show-toplevel)"
+  local project_root
+  project_root="$(git_project_root)"
+  [ $? -eq 0 ] || return
 
   # Note that $(git rev-parse HEAD) returns the hash, not the name,
   # so we add the option, --abbrev-ref.
@@ -81,6 +83,12 @@ git_tracking_branch_safe () {
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# Not that Git essentially calls `realpath` (or `readlink -f`?)
+# on the path, resolving symlinks along the way.
+git_project_root () {
+  git rev-parse --show-toplevel
+}
 
 # Check that the current directory exists in a Git repo.
 git_insist_git_repo () {
