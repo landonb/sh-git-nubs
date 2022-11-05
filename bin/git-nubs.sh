@@ -121,9 +121,10 @@ git_insist_pristine () {
   local projpath="${1:-$(pwd)}"
 
   >&2 echo
-  >&2 echo "ERROR: Project working directory not tidy! Try:"
+  >&2 echo "ERROR: Working directory not tidy."
+  >&2 echo "- HINT: Try:"
   >&2 echo
-  >&2 echo "   cd ${projpath} && git status"
+  >&2 echo "   cd \"${projpath}\" && git status"
   >&2 echo
 
   return 1
