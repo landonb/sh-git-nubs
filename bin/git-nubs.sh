@@ -48,8 +48,26 @@ git_HEAD_commit_sha () {
   git rev-parse HEAD
 }
 
+git_commit_object_name () {
+  git rev-parse "${1:-HEAD}"
+}
+
 git_first_commit_sha () {
   git rev-list --max-parents=0 HEAD
+}
+
+git_first_commit_message () {
+  git --no-pager log --format=%s --max-parents=0 HEAD
+}
+
+git_latest_commit_message () {
+  git --no-pager log --format=%s -1 HEAD
+}
+
+git_number_of_commits () {
+  local gitref="${1:-HEAD}"
+
+  git rev-list --count "${gitref}"
 }
 
 git_remote_exists () {
@@ -73,6 +91,7 @@ git_remote_branch_exists () {
   git show-branch "remotes/${remote_branch}" &> /dev/null
 }
 
+# Prints the tracking aka upstream branch.
 git_tracking_branch () {
   git rev-parse --abbrev-ref --symbolic-full-name @{u} 2> /dev/null
 }
