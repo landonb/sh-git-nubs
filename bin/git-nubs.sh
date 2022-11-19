@@ -92,7 +92,7 @@ git_remote_branch_exists () {
     remote_branch="${remote}/${branch}"
   fi
 
-  git show-branch "remotes/${remote_branch}" &> /dev/null
+  git show-branch "refs/remotes/${remote_branch}" &> /dev/null
 }
 
 # Prints the tracking aka upstream branch.
