@@ -44,6 +44,10 @@ git_branch_name () {
   printf %s "${branch_name}"
 }
 
+git_branch_name_full () {
+  git rev-parse --symbolic-full-name HEAD
+}
+
 git_HEAD_commit_sha () {
   git rev-parse HEAD
 }
