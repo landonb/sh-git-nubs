@@ -65,7 +65,7 @@ git_first_commit_message () {
 }
 
 git_latest_commit_message () {
-  git --no-pager log --format=%s -1 HEAD
+  git --no-pager log --format=%s -1 "${1:-HEAD}"
 }
 
 git_number_of_commits () {
