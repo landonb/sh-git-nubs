@@ -100,6 +100,10 @@ git_tracking_branch () {
   git rev-parse --abbrev-ref --symbolic-full-name @{u} 2> /dev/null
 }
 
+git_upstream () {
+  git_tracking_branch
+}
+
 git_tracking_branch_safe () {
   # Because errexit, fallback on empty string.
   git_tracking_branch || echo ''
