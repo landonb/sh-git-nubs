@@ -102,6 +102,10 @@ git_remote_branch_exists () {
   fi
 
   git show-branch "refs/remotes/${remote_branch}" &> /dev/null
+git_tag_exists () {
+  local tag_name="$1"
+
+  git rev-parse --verify refs/tags/${tag_name} > /dev/null 2>&1
 }
 
 # Prints the tracking aka upstream branch.
