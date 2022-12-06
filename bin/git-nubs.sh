@@ -90,10 +90,26 @@ git_remote_exists () {
 }
 
 git_remote_branch_exists () {
+  local remote_branch="$(print_remote_branch_unambiguous "${1}" "${2}")"
+
+  # SHOWS: [branchname] <most recent commit message>
+  git show-branch "${remote_branch}" &> /dev/null
+}
+
+git_remote_branch_object_name () {
+  local remote_branch="$(print_remote_branch_unambiguous "${1}" "${2}")"
+
+  # SHOWS: SHA1
+  git rev-parse "${remote_branch}" 2> /dev/null
+}
+
+# Prints refs/remotes/<remote>/<branch>.
+print_remote_branch_unambiguous () {
   local remote="$1"
   local branch="$2"
 
-  local remote_branch
+  local remote_branch=""
+
   if [ -z "${branch}" ]; then
     # Assume caller passed in remote/branch.
     remote_branch="${remote}"
@@ -101,7 +117,8 @@ git_remote_branch_exists () {
     remote_branch="${remote}/${branch}"
   fi
 
-  git show-branch "refs/remotes/${remote_branch}" &> /dev/null
+  printf "refs/remotes/${remote_branch}"
+}
 git_tag_exists () {
   local tag_name="$1"
 
