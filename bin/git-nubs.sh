@@ -130,8 +130,11 @@ git_project_root () {
 # Print empty string if at project root;
 # print '../'-concatenated path to project root;
 # or git prints to stderr if not a Git project.
-git_parent_path_to_project_root () {
-  git root -r | sed "s#\([^/]\+\)#..#g"
+print_parent_path_to_project_root () {
+  local depth_path="$(git root -r)"
+  [ "${depth_path}" = "." ] && printf "${depth_path}" && return 0 || true
+
+  printf $"{depth_path}" | sed "s#\([^/]\+\)#..#g"
 }
 
 # Check that the current directory exists in a Git repo.
