@@ -8,7 +8,11 @@
 git_branch_exists () {
   local branch_name="$1"
 
-  git show-ref --verify --quiet refs/heads/${branch_name}
+  # Hrmm, you'd think this would not print:
+  #   git rev-parse --verify --quiet HEAD
+  # This works, but technically we should use rev-parse:
+  #  git show-ref --verify --quiet refs/heads/${branch_name}
+  git rev-parse --verify refs/heads/${branch_name} > /dev/null 2>&1
 }
 
 git_branch_name () {
