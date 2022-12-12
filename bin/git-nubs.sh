@@ -176,6 +176,9 @@ git_project_root () {
 # or git prints to stderr if not a Git project.
 print_parent_path_to_project_root () {
   local depth_path="$(git root -r)"
+  # SPIKE/2022-12-11: Confirm this is what I see:
+  # - ✓ `git root -r` returns empty string @linux.
+  # - ? On @macOS, does it return '.'?
   ( [ "${depth_path}" = "." ] || [ "${depth_path}" = "" ] ) \
     && return 0 || true
 
