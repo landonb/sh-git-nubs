@@ -62,6 +62,10 @@ git_commit_object_name () {
   git rev-parse "${1:-HEAD}"
 }
 
+git_object_is_commit () {
+  [ "$(git cat-file -t "$1" 2> /dev/null)" = "commit" ]
+}
+
 # Use --first-parent to stick to commits in the branch you're on, and
 # not to consider a feature branch you merged that maybe (a rare case)
 # derived from a parentless commit, in which case rev-list would output
