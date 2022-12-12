@@ -86,6 +86,11 @@ git_latest_commit_message () {
   git --no-pager log --format=%s -1 "${1:-HEAD}"
 }
 
+git_child_of () {
+  git --no-pager log --reverse --ancestry-path --format='%H' ${1}..HEAD \
+    | head -1
+}
+
 git_number_of_commits () {
   local gitref="${1:-HEAD}"
 
