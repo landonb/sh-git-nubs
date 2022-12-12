@@ -56,6 +56,8 @@ git_HEAD_commit_sha () {
   git rev-parse HEAD
 }
 
+# BWARE: If the arg. is a valid SHA format, git-rev-parse echoes
+# it without checking if object actually exists.
 git_commit_object_name () {
   git rev-parse "${1:-HEAD}"
 }
