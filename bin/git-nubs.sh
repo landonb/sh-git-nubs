@@ -176,7 +176,8 @@ git_project_root () {
 # or git prints to stderr if not a Git project.
 print_parent_path_to_project_root () {
   local depth_path="$(git root -r)"
-  [ "${depth_path}" = "." ] && printf "${depth_path}" && return 0 || true
+  ( [ "${depth_path}" = "." ] || [ "${depth_path}" = "" ] ) \
+    && return 0 || true
 
   printf $"{depth_path}" | sed "s#\([^/]\+\)#..#g"
 }
