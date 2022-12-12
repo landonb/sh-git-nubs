@@ -91,6 +91,8 @@ git_child_of () {
     | head -1
 }
 
+# See also git-extra's git-count, which counts to HEAD, and with --all
+# print counts per author.
 git_number_of_commits () {
   local gitref="${1:-HEAD}"
 
