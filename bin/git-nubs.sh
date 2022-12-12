@@ -59,7 +59,10 @@ git_HEAD_commit_sha () {
 # BWARE: If the arg. is a valid SHA format, git-rev-parse echoes
 # it without checking if object actually exists.
 git_commit_object_name () {
-  git rev-parse "${1:-HEAD}"
+  local gitref="${1:-HEAD}"
+  local opts="$2"
+
+  git rev-parse ${opts} "${gitref}"
 }
 
 git_object_is_commit () {
