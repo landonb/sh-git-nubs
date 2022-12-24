@@ -187,21 +187,21 @@ git_remote_exists () {
 }
 
 git_remote_branch_exists () {
-  local remote_branch="$(print_remote_branch_unambiguous "${1}" "${2}")"
+  local remote_branch="$(_git_print_remote_branch_unambiguous "${1}" "${2}")"
 
   # SHOWS: [branchname] <most recent commit message>
   git show-branch "${remote_branch}" &> /dev/null
 }
 
 git_remote_branch_object_name () {
-  local remote_branch="$(print_remote_branch_unambiguous "${1}" "${2}")"
+  local remote_branch="$(_git_print_remote_branch_unambiguous "${1}" "${2}")"
 
-  # SHOWS: SHA1
+  # Prints SHA1.
   git rev-parse "${remote_branch}" 2> /dev/null
 }
 
 # Prints refs/remotes/<remote>/<branch>.
-print_remote_branch_unambiguous () {
+_git_print_remote_branch_unambiguous () {
   local remote="$1"
   local branch="$2"
 
@@ -214,7 +214,7 @@ print_remote_branch_unambiguous () {
     remote_branch="${remote}/${branch}"
   fi
 
-  printf "refs/remotes/${remote_branch}"
+  printf "refs/remotes/$(echo "${remote_branch}" | sed 's#^refs/remotes/##')"
 }
 
 git_remote_default_branch () {
