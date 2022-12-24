@@ -146,6 +146,30 @@ git_child_of () {
     | head -1
 }
 
+# Some obvious and non-obvious ways to get the parent to a commit:
+#   git rev-parse $1^
+#   git --no-pager log --pretty=%P -n 1 $1
+#   git cat-file -p $1 | grep -e "^parent " | awk '{ print $2 }'
+# - If given first commit (or first-commit^):
+#   - git-rev-parse echos query and prints message to stderr.
+#   - git-log prints nothing.
+#   - git-cat-file prints commit meta without parent line,
+#     so awk prints nothing.
+#   Note that git-rev-parse is the least best choice, if you want to
+#   just not print anything if no parent -- it not only prints a long
+#   error message, but it echoes the query back to stdout, so you'd have
+#   to store the query, test $?, then print the query if not an error.
+#   - Of the other two, git-log's error message when the commit object is
+#     unknown is 3 lines long and super not helpful: it spends 2 lines
+#     telling you to use '--' to separate paths, and the first line leads
+#     with the confusing "fatal: ambiguous argument". Or at least it's
+#     confusing to me, like, "What's 'ambiguous'? Oh, it's the object ref.
+#     that's not a real object." Which is why I like cat-file's error the
+#     best: "fatal: Not a valid object name 'foo'".
+git_parent_of () {
+  git cat-file -p $1 | grep -e "^parent " | awk '{ print $2 }'
+}
+
 # See also git-extra's git-count, which counts to HEAD, and with --all
 # print counts per author.
 git_number_of_commits () {
