@@ -225,6 +225,73 @@ git_remote_default_branch () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# MEH/2022-12-16: This seems like a problem that's likely been solved
+# many times before: Given a remote branch name, how to parse out the
+# remote name and parse out the branch name. But I don't know of any
+# solutions, and a quick search didn't enlighten me, so I baked my own.
+
+# The `dirname` or upstream branch references (aka rootname).
+git_upstream_parse_remote_name () {
+  # echo "$1" | sed 's/\/.*$//'
+  # echo "$1" | sed -E 's#^(refs/remotes/)?([^/]+)/.*$#\2#'
+  # echo "$1" | sed 's#^refs/remotes/##' | sed 's/\/.*$//'
+  git_upstream_parse_names true false "$@"
+}
+
+# The `basename` or upstream branch references (aka rootless).
+git_upstream_parse_branch_name () {
+  # echo "$1" | sed 's/^[^\/]*\///'
+  # echo "$1" | sed -E 's#^(refs/remotes/)?[^/]+/##'
+  # echo "$1" | sed 's#^refs/remotes/##' | sed 's/^[^\/]*\///'
+  git_upstream_parse_names false true "$@"
+}
+
+git_upstream_parse_names () {
+  local print_remote="${1:-false}"
+  local print_branch="${2:-false}"
+  local upstream_ref="$3"
+
+  local deprefixed="$(echo "${upstream_ref}" | sed 's#^refs/remotes/##')"
+  local remote_name="$(_git_parse_path_rootname "${deprefixed}")"
+  local branch_name="$(_git_parse_path_rootless "${deprefixed}")"
+
+  # ***
+
+  if [ "${remote_name}" = "refs" ]; then
+    >&2 echo "ERROR: Cannot parse non-remotes refs/ upstream reference: ${upstream_ref}"
+
+    return 1
+  fi
+
+  # If one, then both, so say we all.
+  # - These tests cover inputs like "foo" and "bar/".
+  if false\
+    || [ -z "${remote_name}" ] \
+    || [ -z "${branch_name}" ] \
+    || [ "${remote_name}" = "${deprefixed}" ] \
+    || [ "${branch_name}" = "${deprefixed}" ]; \
+  then
+    return 0
+  fi
+
+  # ***
+
+  ! ${print_remote} || printf "${remote_name}"
+  ! ${print_branch} || printf "${branch_name}"
+}
+
+# The other opposite of `dirname`, `rootname`.
+_git_parse_path_rootname () {
+  echo "$1" | sed 's#/.*$##'
+}
+
+# The other opposite of `basename`, something progenitor? `progname`?
+_git_parse_path_rootless () {
+  echo "$1" | sed 's#^[^/]*/##'
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # Note that Git resolves symlinks, e.g., what cd'ing to project root
 # and running `realpath .`, `readlink -f .`, or `pwd -P` would show.
 git_project_root () {
