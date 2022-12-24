@@ -79,6 +79,39 @@ git_commit_object_name () {
   git rev-parse ${opts} "${gitref}"
 }
 
+# There are a few ways to find the object name (SHA) for a tag:
+#
+#   git rev-parse refs/tags/sometag
+#   git rev-parse --tags=*some/tag
+#   git show-ref --tags
+#
+# Per `man git-rev-parse` --tags appends "/*" if search doesn't include glob
+# character (*?[), making it a prefix match -- and also making it *not* match
+# what you're trying to search, which seems like a weird interface choice.
+# - E.g., searching for some/tag:
+#     git rev-parse --tags=some/tag
+#   won't actually match some/tag. It will match some/tag/name.
+#   - To match some/tag, you have to glob it explicitly, e.g.,
+#       git rev-parse --tags=*some/tag
+#       git rev-parse --tags=some/tag*
+#       git rev-parse --tags=[s]ome/tag
+#   - But there's no way to make an exact tag name match using --tags.
+#     - Which I guess is Git nudging you to use refs/tags/.
+# Note the UX differences between using refs/tags/ vs. --tags:
+# - If not found, refs/tags reprints argument, "ambiguous argument" message,
+#   and exits nonzero. --tags prints nothing and exits zero.
+#   - Here we mimic --tags.
+git_tag_object_name () {
+  local gitref="$1"
+  local opts="$2"
+
+  [ -n "${gitref}" ] || return 0
+
+  local says_git=""
+  says_git="$(git rev-parse ${opts} refs/tags/${gitref} 2> /dev/null)"
+  [ $? -ne 0 ] || echo "${says_git}"
+}
+
 git_tag_exists () {
   local tag_name="$1"
 
