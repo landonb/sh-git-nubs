@@ -52,9 +52,23 @@ git_branch_name_full () {
   git rev-parse --symbolic-full-name HEAD
 }
 
-git_HEAD_commit_sha () {
-  git rev-parse HEAD
+# ***
+
+# Prints the tracking aka upstream branch.
+git_tracking_branch () {
+  git rev-parse --abbrev-ref --symbolic-full-name @{u} 2> /dev/null
 }
+
+git_upstream () {
+  git_tracking_branch
+}
+
+git_tracking_branch_safe () {
+  # Because errexit, fallback on empty string.
+  git_tracking_branch || echo ''
+}
+
+# ***
 
 # BWARE: If the arg. is a valid SHA format, git-rev-parse echoes
 # it without checking if object actually exists.
@@ -65,8 +79,16 @@ git_commit_object_name () {
   git rev-parse ${opts} "${gitref}"
 }
 
-git_object_is_commit () {
-  [ "$(git cat-file -t "$1" 2> /dev/null)" = "commit" ]
+git_tag_exists () {
+  local tag_name="$1"
+
+  git rev-parse --verify refs/tags/${tag_name} > /dev/null 2>&1
+}
+
+# ***
+
+git_HEAD_commit_sha () {
+  git rev-parse HEAD
 }
 
 # Use --first-parent to stick to commits in the branch you're on, and
@@ -98,6 +120,8 @@ git_number_of_commits () {
 
   git rev-list --count "${gitref}"
 }
+
+# ***
 
 git_remote_exists () {
   local remote="$1"
@@ -140,26 +164,6 @@ git_remote_default_branch () {
   local remote="$1"
 
   git remote show ${remote} | grep 'HEAD branch' | cut -d' ' -f5
-}
-
-git_tag_exists () {
-  local tag_name="$1"
-
-  git rev-parse --verify refs/tags/${tag_name} > /dev/null 2>&1
-}
-
-# Prints the tracking aka upstream branch.
-git_tracking_branch () {
-  git rev-parse --abbrev-ref --symbolic-full-name @{u} 2> /dev/null
-}
-
-git_upstream () {
-  git_tracking_branch
-}
-
-git_tracking_branch_safe () {
-  # Because errexit, fallback on empty string.
-  git_tracking_branch || echo ''
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -274,6 +278,10 @@ git_is_valid_ref () {
   local gitref="$1"
 
   [ -n "$(git rev-parse --verify --quiet "${gitref}^{commit}")" ]
+}
+
+git_object_is_commit () {
+  [ "$(git cat-file -t "$1" 2> /dev/null)" = "commit" ]
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
