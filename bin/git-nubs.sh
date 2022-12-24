@@ -96,7 +96,7 @@ git_HEAD_commit_sha () {
 # derived from a parentless commit, in which case rev-list would output
 # more than one commit object. (Oddly, my landonb/homefries.git project
 # has such a case early in its history.)
-git_first_commit_sha () {
+git_first_commit_sha () {  # aka git_root_commit_sha, perhaps
   git rev-list --max-parents=0 --first-parent HEAD
 }
 
