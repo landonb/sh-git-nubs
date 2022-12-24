@@ -52,6 +52,10 @@ git_branch_name_full () {
   git rev-parse --symbolic-full-name HEAD
 }
 
+git_check_branch_name () {
+  git check-ref-format --branch "$1"
+}
+
 # ***
 
 # Prints the tracking aka upstream branch.
