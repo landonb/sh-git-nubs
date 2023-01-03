@@ -83,6 +83,13 @@ git_commit_object_name () {
   git rev-parse ${opts} "${gitref}"
 }
 
+git_is_same_commit () {
+  local lhs="$1"
+  local rhs="$2"
+
+  [ "$(git_commit_object_name "${lhs}")" = "$(git_commit_object_name "${rhs}")" ]
+}
+
 # There are a few ways to find the object name (SHA) for a tag:
 #
 #   git rev-parse refs/tags/sometag
