@@ -306,8 +306,16 @@ _git_parse_path_rootless () {
 # Note that Git resolves symlinks, e.g., what cd'ing to project root
 # and running `realpath .`, `readlink -f .`, or `pwd -P` would show.
 git_project_root () {
+  git_project_root_absolute
+}
+
+git_project_root_absolute () {
   # Same output as `git root`.
   git rev-parse --show-toplevel
+}
+
+git_project_root_relative () {
+  (cd "./$(git rev-parse --show-cdup)" && pwd -L)
 }
 
 # Print empty string if at project root;
