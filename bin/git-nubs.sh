@@ -507,11 +507,11 @@ GITSMART_RE_VERSPARTS='^v?([0-9]+)\.([0-9]+)(\.([0-9]+)([^0-9]*)(.*))?'
 
 # Use git-tag's simple glob to first filter on tags starting with 'v' or 0-9.
 # - CPYST: Copy-paste test snippet:
-#     git --no-pager tag -l "${GITSMART_GLOB_VERSION_TAG}"
-GITSMART_GLOB_VERSION_TAG='[v0-9]*'
+#     git --no-pager tag -l ${GITSMART_VERSION_TAG_PATTERNS}
+GITSMART_VERSION_TAG_PATTERNS="v[0-9]* [0-9]*"
 
 git_latest_version_basetag () {
-  git tag -l "${GITSMART_GLOB_VERSION_TAG}" |
+  git tag -l ${GITSMART_VERSION_TAG_PATTERNS} |
     grep -E -e "${GITSMART_RE_VERSPARTS}" |
     /usr/bin/env sed -E "s/${GITSMART_RE_VERSPARTS}/\1.\2.\4/" |
     sort -r --version-sort |
