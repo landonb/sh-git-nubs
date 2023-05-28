@@ -27,7 +27,7 @@ E.g.,
 
   $ git_insist_pristine || >&2 echo "Your working directory has WORK!"
 
-  $ git_versions_tagged_for_commit
+  $ git_versions_tagged_for_commit_object $(git rev-parse HEAD)
   0.0.1
 
   $ git_last_version_tag_describe

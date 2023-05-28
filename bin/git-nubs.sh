@@ -429,7 +429,7 @@ git_object_is_commit () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-git_versions_tagged_for_commit () {
+git_versions_tagged_for_commit_object () {
   local hash="$1"
 
   if [ -z "${hash}" ]; then
