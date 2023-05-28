@@ -346,7 +346,7 @@ print_parent_path_to_project_root () {
   ( [ "${depth_path}" = "." ] || [ "${depth_path}" = "" ] ) \
     && return 0 || true
 
-  printf $"{depth_path}" | sed "s#\([^/]\+\)#..#g"
+  printf "${depth_path}" | sed 's#\([^/]\+\)#..#g'
 }
 
 # Check that the current directory exists in a Git repo.
