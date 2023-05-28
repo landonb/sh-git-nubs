@@ -503,8 +503,7 @@ GITSMART_GLOB_VERSION_TAG='[v0-9]*'
 #               \5: separator (non-digit)
 #               \6: pre-release and/or build, aka the rest.
 # Note that this is not strictly Semantic Versioning compliant:
-# - It allows a leading 'v', which is a convention some people use
-#   (and that the author used to use but has since stopped using);
+# - It allows a leading 'v', which some devs/projects use.
 # - It allows for a pre-release/build part that includes characters
 #   that SemVer does not allow, which is limited to [-a-zA-Z0-9].
 GITSMART_RE_VERSPARTS='^v?([0-9]+)\.([0-9]+)(\.([0-9]+)([^0-9]*)(.*))?'
