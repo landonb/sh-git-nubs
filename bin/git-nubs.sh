@@ -372,6 +372,12 @@ git_insist_pristine () {
   return 1
 }
 
+# I use the term 'tidy' a lot (as opposed to 'clean' (and 'dirty')),
+# so might as well make the alias function.
+git_insist_tidy () {
+  git_insist_pristine "$@"
+}
+
 git_nothing_staged () {
   git diff --cached --quiet
 }
