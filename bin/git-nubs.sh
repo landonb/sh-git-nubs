@@ -633,7 +633,7 @@ latest_version_fulltag () {
   local basevers="$1"
 
   # Use Perl, not sed, because of ".*?" non-greedy (so \7 works).
-  git tag -l "${basevers}*" -l "v${basevers}*" |
+  git tag -l "${basevers}*" "v${basevers}*" |
     command grep -E -e "${GITSMART_RE_VERSPARTS}" |
     command perl -ne "print if s/${GITSMART_RE_VERSPARTS}/\6, \7, \1\2.\3.\5\6\7/" |
     command sort -k1,1 -k2,2n |
