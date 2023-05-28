@@ -358,7 +358,7 @@ git_insist_git_repo () {
 }
 
 git_insist_pristine () {
-  ! test -n "$(git status --porcelain)" && return 0
+  ! test -n "$(git status --porcelain=v1)" && return 0
 
   local projpath="${1:-$(pwd)}"
 
