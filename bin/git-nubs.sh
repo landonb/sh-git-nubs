@@ -231,6 +231,8 @@ _git_print_remote_branch_unambiguous () {
 git_remote_default_branch () {
   local remote="$1"
 
+  [ -n "${remote}" ] || return 1
+
   git remote show ${remote} | grep 'HEAD branch' | cut -d' ' -f5
 }
 
