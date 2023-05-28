@@ -574,7 +574,9 @@ GITSMART_VERSION_TAG_PATTERNS="v[0-9]* [0-9]*"
 # Get the latest non-pre-release version tag, e.g., 1.2.3.
 
 git_latest_version_basetag () {
-  git tag -l ${GITSMART_VERSION_TAG_PATTERNS} |
+  # Any args are passed to git-tag.
+
+  git tag -l "$@" ${GITSMART_VERSION_TAG_PATTERNS} |
     command grep -E -e "${GITSMART_RE_VERSPARTS}" |
     command sed -E "s/${GITSMART_RE_VERSPARTS}/\2.\3.\5/" |
     command sort -r --version-sort |
@@ -631,9 +633,10 @@ git_latest_version_basetag () {
 #   no pre-release tags; or nothing if there's no basevers tag).
 latest_version_fulltag () {
   local basevers="$1"
+  # Any additional args are passed to git-tag.
 
   # Use Perl, not sed, because of ".*?" non-greedy (so \7 works).
-  git tag -l "${basevers}*" "v${basevers}*" |
+  git tag -l "$@" "${basevers}*" "v${basevers}*" |
     command grep -E -e "${GITSMART_RE_VERSPARTS}" |
     command perl -ne "print if s/${GITSMART_RE_VERSPARTS}/\6, \7, \1\2.\3.\5\6\7/" |
     command sort -k1,1 -k2,2n |
@@ -642,7 +645,9 @@ latest_version_fulltag () {
 }
 
 git_latest_version_tag () {
-  local basevers="$(git_latest_version_basetag)"
+  # Any args passed to git-tag.
+
+  local basevers="$(git_latest_version_basetag "$@")"
 
   # See if the basevers tag is an actual tag (e.g., 1.2.3), otherwise
   # git_latest_version_basetag only found pre-release versions.
@@ -652,7 +657,7 @@ git_latest_version_tag () {
   else
     # Latest version is a prerelease tag. Determine which pre-release
     # from that basevers is the largest.
-    fullvers="$(latest_version_fulltag "${basevers}")"
+    fullvers="$(latest_version_fulltag "${basevers}" "$@")"
   fi
 
   [ -z "${fullvers}" ] || echo "${fullvers}"
