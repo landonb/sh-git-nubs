@@ -254,6 +254,8 @@ git_remote_default_branch () {
 git_upstream_parse_remote_name () {
   local remote_branch="$1"
 
+  [ -n "${remote_branch}" ] || remote_branch="$(git_tracking_branch)"
+
   # echo "$1" | sed 's/\/.*$//'
   # echo "$1" | sed -E 's#^(refs/remotes/)?([^/]+)/.*$#\2#'
   # echo "$1" | sed 's#^refs/remotes/##' | sed 's/\/.*$//'
@@ -263,6 +265,8 @@ git_upstream_parse_remote_name () {
 # Think of this as `basename` of remote branch ref. (aka `rootless`).
 git_upstream_parse_branch_name () {
   local remote_branch="$1"
+
+  [ -n "${remote_branch}" ] || remote_branch="$(git_tracking_branch)"
 
   # echo "$1" | sed 's/^[^\/]*\///'
   # echo "$1" | sed -E 's#^(refs/remotes/)?[^/]+/##'
