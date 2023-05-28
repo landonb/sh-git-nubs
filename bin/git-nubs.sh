@@ -452,7 +452,12 @@ git_object_is_commit () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-git_versions_tagged_for_commit_object () {
+# LATER/2023-05-28: Leaving __THE_HARD_WAY variant: I want to add
+# tests, and I want to verify the 2 approaches produce same results.
+
+# Show versions tagged on specified object, or HEAD.
+# - Strips leading 'v' prefix from tag names.
+git_versions_tagged_for_commit_object__THE_HARD_WAY () {
   local hash="$1"
 
   if [ -z "${hash}" ]; then
@@ -481,6 +486,16 @@ git_versions_tagged_for_commit_object () {
     | command sed \
       -e 's#.* refs/tags/v\?##' \
       -e 's/\^{}//'
+}
+
+# Show versions tagged on specified object, or HEAD.
+# - Strips leading 'v' prefix from tag names.
+git_versions_tagged_for_commit_object () {
+  local object="$1"
+
+  git tag --list --points-at ${object} \
+    | grep -E -e "${GITSMART_RE_VERSPARTS}" \
+    | command sed -e 's/^v//'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
