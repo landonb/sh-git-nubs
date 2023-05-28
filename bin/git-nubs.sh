@@ -477,7 +477,7 @@ git_versions_tagged_for_commit_object () {
   # then isolate just the tag -- and match only tags with a leading digit
   # (assuming that indicates a version tag, to exclude non-version tags).
   git show-ref --tags -d \
-    | grep "^${hash}.* refs/tags/v\?[0-9]" \
+    | grep -E -e "^${hash}.* refs/tags/${GITSMART_RE_VERSPARTS__INCLUSIVE}" \
     | command sed \
       -e 's#.* refs/tags/v\?##' \
       -e 's/\^{}//'
@@ -485,17 +485,61 @@ git_versions_tagged_for_commit_object () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# Match groups: \1: major
-#               \2: minor
-#               \3: \4\5\6
-#               \4: patch
-#               \5: separator (non-digit)
-#               \6: pre-release and/or build, aka the rest.
+# Semantic Versioning 2.0.0 and version-ish tag name regex.
+
+# Match groups: \1: 'v'       (optional)
+#               \2: major     (required)
+#               \3: minor     (required)
+#               \4: \5\6\7    (optional)
+#               \5: patch
+#               \6: pre-release (up to any final digits)
+#               \7: pre-release (any final digits)
 # Note that this is not strictly Semantic Versioning compliant:
 # - It allows a leading 'v', which some devs/projects use.
 # - It allows for a pre-release/build part that includes characters
 #   that SemVer does not allow, which is limited to [-a-zA-Z0-9].
-GITSMART_RE_VERSPARTS='^v?([0-9]+)\.([0-9]+)(\.([0-9]+)([^0-9]*)(.*))?'
+#   - SemVer also insists on a '-' or '+' between the patch and the
+#     pre-release version, whereas this regex allows any non-digit,
+#     e.g., this regex allows non-SemVer such as "1.0.0a1".
+#   - But this fine. This regex is meant to be more inclusive, so that
+#     it finds with more version tags, or what look like version tags.
+#   - This regex is very useful when used in tandem with the SemVer
+#     regex, defined after. E.g., you could verify a version tag is 
+#     valid with the SemVer regex; then you could use our regex to pull
+#     apart the components so you can bump any part, including the
+#     pre-release (assuming the pre-release part ends in a number).
+#   - Note the ".*?" usage, which is Perl for less greedy. But grep and
+#     sed see it as ".*" (zero-or-more chars) and "?" (optional), which
+#     is redundant. So you can use this regex for matching with any
+#     command, but you'll want to use Perl for splitting or substitution.
+# - Remember to use Perl for substitution, e.g.,
+#     $ perl -pe "s/${GITSMART_RE_VERSPARTS}/NubsVer: \1 \2 \3 \5 \6 \7/" <<<"v1.2.3-1alpha1"
+#     NubsVer: v 1 2 3 -1alpha 1
+#   But sed will be too greedy (and what should be \7 will be gobbled by \6):
+#     $ echo "v1.2.3-1alpha1" | sed -E "s/${GITSMART_RE_VERSPARTS}/NubsVer: \1 \2 \3 \5 \6 \7/"
+#     NubsVer: v 1 2 3 -1alpha1 
+
+GITSMART_RE_VERSPARTS__INCLUSIVE='(v)?([0-9]+)\.([0-9]+)(\.([0-9]+)([^0-9].*?)?([0-9]+)?)?'
+GITSMART_RE_VERSPARTS="^${GITSMART_RE_VERSPARTS__INCLUSIVE}$"
+
+# CXREF: SemVer Perl regex, from the source, unaltered.
+#   https://semver.org/
+#   https://regex101.com/r/Ly7O1x/3/
+# - You could try, e.g.,
+#     $ perl -pe "s/${GITSMART_RE_SEMVERSPARTS}/SemVer: \1 \2 \3 \4 \5/" <<<"1.0.0+alpha-a.b-c.1.d"
+#     SemVer: 1 0 0  alpha-a.b-c.1.d
+#     $ perl -pe "s/${GITSMART_RE_SEMVERSPARTS}/SemVer: \1 \2 \3 \4 \5/" <<<"1.0.0-alpha+a.b-c.1.d"
+#     SemVer: 1 0 0 alpha a.b-c.1.d
+#   Or
+#     $ echo "1.2.3-a.4" | perl -ne "print if s/${GITSMART_RE_SEMVERSPARTS}/\1 \2 \3 \4 \5/"
+#     1 2 3 a.4
+#   Or
+#     $ echo "1.2.3-a.4" | perl -ne "print if /${GITSMART_RE_SEMVERSPARTS}/"
+#     1.2.3-a.4
+#     $ echo "v1.2.3" | perl -ne "print if /${GITSMART_RE_SEMVERSPARTS}/"
+#     # OUTPUT: None. Not a valid SemVer.
+
+GITSMART_RE_SEMVERSPARTS='^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$'
 
 # ***
 
@@ -505,37 +549,94 @@ GITSMART_RE_VERSPARTS='^v?([0-9]+)\.([0-9]+)(\.([0-9]+)([^0-9]*)(.*))?'
 # so we'll filter with grep to pick out the latest version tag. (Meaning,
 # the glob is unnecessary, because grep does all the work, but whatever.)
 
-# Use git-tag's simple glob to first filter on tags starting with 'v' or 0-9.
+# This glob selects tags that start with an optional 'v', followed by 0-9.
+# - We use it as a git-tag prefilter, but it's really the grep after it
+#   truly filters the version tags.
 # - CPYST: Copy-paste test snippet:
 #     git --no-pager tag -l ${GITSMART_VERSION_TAG_PATTERNS}
 GITSMART_VERSION_TAG_PATTERNS="v[0-9]* [0-9]*"
 
+# Get the latest non-pre-release version tag, e.g., 1.2.3.
+
 git_latest_version_basetag () {
   git tag -l ${GITSMART_VERSION_TAG_PATTERNS} |
     command grep -E -e "${GITSMART_RE_VERSPARTS}" |
-    command sed -E "s/${GITSMART_RE_VERSPARTS}/\1.\2.\4/" |
+    command sed -E "s/${GITSMART_RE_VERSPARTS}/\2.\3.\5/" |
     command sort -r --version-sort |
     command head -n1
 }
 
+# Get the latest pre-release version tag for a given non-pre-release version.
+# - E.g., pass it "1.0.0" and it prints "1.0.0-rc.1" (per the example below).
+#
+# - We use our version regex to sort first by lexicographical order,
+#   then by trailing number... which should be SemVer-compatible-enough
+#   for our usage, as we explain.
+# 
+#   Here's the SemVer procedure:  https://semver.org/#spec-item-11
+#
+#     1.) Identifiers consisting of only digits are compared numerically.
+#
+#     2.) Identifiers with letters or hyphens are compared lexically in ASCII sort order.
+#
+#     3.) Numeric identifiers always have lower precedence than non-numeric identifiers.
+#
+#     4.) A larger set of pre-release fields has a higher precedence than a smaller set,
+#         if all of the preceding identifiers are equal.
+#
+#     Example: 1.0.0-alpha
+#            < 1.0.0-alpha.1
+#            < 1.0.0-alpha.beta
+#            < 1.0.0-beta
+#            < 1.0.0-beta.2
+#            < 1.0.0-beta.11
+#            < 1.0.0-rc.1
+#            < 1.0.0
+#
+#   - The `sort -k1,1 -k2,2n` we use below does alright:
+#              1.0.0-alpha
+#              1.0.0-alpha.1
+#              1.0.0-alpha.beta
+#              1.0.0-beta
+#              1.0.0-beta.2
+#              1.0.0-beta.11
+#              1.0.0-rc.1
+#     So long as you keep the pipeline to a single basevers (e.g., 1.2.3),
+#     and that you don't call it if the basevers itself is a version tag
+#     (because the basevers gets sorted lowest).
+#     - BWARE: Note we haven't tested further than this. You'll be fine
+#       if you stick to a format similar to the example tags above, but
+#       if you stray too far, this pipeline will likely sort differently
+#       than SemVer specifies.
+
+# This call assumes there are pre-releases for ${basevers},
+# and not an exact ${basevers} version.
+# - That is to say, this function returns the largest pre-release
+#   tag for a given basevers (or the basevers itself if there are
+#   no pre-release tags; or nothing if there's no basevers tag).
 latest_version_fulltag () {
   local basevers="$1"
 
+  # Use Perl, not sed, because of ".*?" non-greedy (so \7 works).
   git tag -l "${basevers}*" -l "v${basevers}*" |
-    command sed -E "s/${GITSMART_RE_VERSPARTS}/\6,\1.\2.\4\5\6/" |
-    command sort -r -n |
-    command head -n1 |
-    command sed -E "s/^[^,]*,//"
+    command grep -E -e "${GITSMART_RE_VERSPARTS}" |
+    command perl -ne "print if s/${GITSMART_RE_VERSPARTS}/\6, \7, \1\2.\3.\5\6\7/" |
+    command sort -k1,1 -k2,2n |
+    command tail -n1 |
+    command sed -E "s/^[^,]*, [^,]*, //"
 }
 
 git_latest_version_tag () {
   local basevers="$(git_latest_version_basetag)"
 
-  # See if basevers really tagged or if gleaned from alpha.
+  # See if the basevers tag is an actual tag (e.g., 1.2.3), otherwise
+  # git_latest_version_basetag only found pre-release versions.
+  # - A basevers version is higher than any pre-release with the same basevers.
   if git show-ref --tags -- "${basevers}" > /dev/null; then
     fullvers="${basevers}"
   else
-    # Assemble alpha-number-prefixed versions to sort and grab largest alpha.
+    # Latest version is a prerelease tag. Determine which pre-release
+    # from that basevers is the largest.
     fullvers="$(latest_version_fulltag "${basevers}")"
   fi
 
