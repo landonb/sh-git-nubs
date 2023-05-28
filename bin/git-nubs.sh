@@ -250,20 +250,24 @@ git_remote_default_branch () {
 # remote name and parse out the branch name. But I don't know of any
 # solutions, and a quick search didn't enlighten me, so I baked my own.
 
-# The `dirname` or upstream branch references (aka rootname).
+# Think of this as `dirname` of remote branch ref. (aka `rootname`).
 git_upstream_parse_remote_name () {
+  local remote_branch="$1"
+
   # echo "$1" | sed 's/\/.*$//'
   # echo "$1" | sed -E 's#^(refs/remotes/)?([^/]+)/.*$#\2#'
   # echo "$1" | sed 's#^refs/remotes/##' | sed 's/\/.*$//'
-  git_upstream_parse_names true false "$@"
+  git_upstream_parse_names true false "${remote_branch}"
 }
 
-# The `basename` or upstream branch references (aka rootless).
+# Think of this as `basename` of remote branch ref. (aka `rootless`).
 git_upstream_parse_branch_name () {
+  local remote_branch="$1"
+
   # echo "$1" | sed 's/^[^\/]*\///'
   # echo "$1" | sed -E 's#^(refs/remotes/)?[^/]+/##'
   # echo "$1" | sed 's#^refs/remotes/##' | sed 's/^[^\/]*\///'
-  git_upstream_parse_names false true "$@"
+  git_upstream_parse_names false true "${remote_branch}"
 }
 
 git_upstream_parse_names () {
