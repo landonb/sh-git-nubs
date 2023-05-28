@@ -485,17 +485,6 @@ git_versions_tagged_for_commit_object () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# Return the latest version tag (per Semantic Versioning rules).
-
-# Note that git-tag only accepts a glob(7), and not a regular expression,
-# so we'll filter with grep to pick out the latest version tag. (Meaning,
-# the glob is unnecessary, because grep does all the work, but whatever.)
-
-# Use git-tag's simple glob to first filter on tags starting with 'v' or 0-9.
-# - CPYST: Copy-paste test snippet:
-#     git --no-pager tag -l "${GITSMART_GLOB_VERSION_TAG}"
-GITSMART_GLOB_VERSION_TAG='[v0-9]*'
-
 # Match groups: \1: major
 #               \2: minor
 #               \3: \4\5\6
@@ -507,6 +496,19 @@ GITSMART_GLOB_VERSION_TAG='[v0-9]*'
 # - It allows for a pre-release/build part that includes characters
 #   that SemVer does not allow, which is limited to [-a-zA-Z0-9].
 GITSMART_RE_VERSPARTS='^v?([0-9]+)\.([0-9]+)(\.([0-9]+)([^0-9]*)(.*))?'
+
+# ***
+
+# Return the latest version tag (per Semantic Versioning rules).
+
+# Note that git-tag only accepts a glob(7), and not a regular expression,
+# so we'll filter with grep to pick out the latest version tag. (Meaning,
+# the glob is unnecessary, because grep does all the work, but whatever.)
+
+# Use git-tag's simple glob to first filter on tags starting with 'v' or 0-9.
+# - CPYST: Copy-paste test snippet:
+#     git --no-pager tag -l "${GITSMART_GLOB_VERSION_TAG}"
+GITSMART_GLOB_VERSION_TAG='[v0-9]*'
 
 git_latest_version_basetag () {
   git tag -l "${GITSMART_GLOB_VERSION_TAG}" |
