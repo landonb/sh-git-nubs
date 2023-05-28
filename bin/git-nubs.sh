@@ -492,9 +492,9 @@ git_versions_tagged_for_commit_object () {
 # the glob is unnecessary, because grep does all the work, but whatever.)
 
 # Use git-tag's simple glob to first filter on tags starting with 'v' or 0-9.
+# - CPYST: Copy-paste test snippet:
+#     git --no-pager tag -l "${GITSMART_GLOB_VERSION_TAG}"
 GITSMART_GLOB_VERSION_TAG='[v0-9]*'
-# DEV: Copy-paste test snippet:
-#   git --no-pager tag -l "${GITSMART_GLOB_VERSION_TAG}"
 
 # Match groups: \1: major
 #               \2: minor
@@ -605,7 +605,7 @@ github_purge_release_and_tags_of_same_name () {
   #   git ls-remote ${R2G2P_REMOTE} refs/tags/${RELEASE_VERSION}
   #   git ls-remote ${R2G2P_REMOTE} --tags ${RELEASE_VERSION}
   #   git ls-remote ${R2G2P_REMOTE} --tags refs/tags/${RELEASE_VERSION}
-  # NOTE: This call takes a moment. (lb): Must be contacting the remote?
+  # NOTE: This is a network call and takes a moment.
   # NOTE: Use default `cut` delimiter, TAB.
   local remote_tag_hash
   remote_tag_hash="$(git ls-remote --tags ${R2G2P_REMOTE} ${RELEASE_VERSION} | cut -f1)"
