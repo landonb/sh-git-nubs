@@ -58,6 +58,13 @@ git_check_branch_name () {
 
 # ***
 
+# SAVVY/2020-07-01: Two ways to print "{remote}/{branch}":
+#   git rev-parse --abbrev-ref --symbolic-full-name @{u}
+# and
+#   git for-each-ref --format='%(upstream:short)' "$(git symbolic-ref -q HEAD)"
+# CXREF: *Find out which remote branch a local branch is tracking*
+#   https://stackoverflow.com/questions/171550/
+
 # Prints the tracking aka upstream branch.
 git_tracking_branch () {
   git rev-parse --abbrev-ref --symbolic-full-name @{u} 2> /dev/null
