@@ -512,20 +512,20 @@ GITSMART_VERSION_TAG_PATTERNS="v[0-9]* [0-9]*"
 
 git_latest_version_basetag () {
   git tag -l ${GITSMART_VERSION_TAG_PATTERNS} |
-    grep -E -e "${GITSMART_RE_VERSPARTS}" |
-    /usr/bin/env sed -E "s/${GITSMART_RE_VERSPARTS}/\1.\2.\4/" |
-    sort -r --version-sort |
-    head -n1
+    command grep -E -e "${GITSMART_RE_VERSPARTS}" |
+    command sed -E "s/${GITSMART_RE_VERSPARTS}/\1.\2.\4/" |
+    command sort -r --version-sort |
+    command head -n1
 }
 
 latest_version_fulltag () {
   local basevers="$1"
 
   git tag -l "${basevers}*" -l "v${basevers}*" |
-    /usr/bin/env sed -E "s/${GITSMART_RE_VERSPARTS}/\6,\1.\2.\4\5\6/" |
-    sort -r -n |
-    head -n1 |
-    /usr/bin/env sed -E "s/^[^,]*,//"
+    command sed -E "s/${GITSMART_RE_VERSPARTS}/\6,\1.\2.\4\5\6/" |
+    command sort -r -n |
+    command head -n1 |
+    command sed -E "s/^[^,]*,//"
 }
 
 git_latest_version_tag () {
