@@ -607,11 +607,12 @@ github_purge_release_and_tags_of_same_name () {
   #   git ls-remote ${R2G2P_REMOTE} --tags refs/tags/${RELEASE_VERSION}
   # NOTE: This is a network call and takes a moment.
   # NOTE: Use default `cut` delimiter, TAB.
+  printf '%s' \
+    "Send remote request: ‘git ls-remote --tags ${R2G2P_REMOTE} ${RELEASE_VERSION}’... "
+  #
   local remote_tag_hash
   remote_tag_hash="$(git ls-remote --tags ${R2G2P_REMOTE} ${RELEASE_VERSION} | cut -f1)"
-
-  printf '%s' \
-    "Send remote request: ‘git ls-remote --tags ${R2G2P_REMOTE} ${RELEASE_VERSION}’..."
+  #
   printf '%s\n' " ${remote_tag_hash}"
 
   local tag_commit_hash
