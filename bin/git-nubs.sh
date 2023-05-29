@@ -644,8 +644,29 @@ latest_version_fulltag () {
     command sed -E "s/^[^,]*, [^,]*, //"
 }
 
-git_latest_version_tag () {
-  # Any args passed to git-tag.
+# Note that git-tag has a few options which seems like they could be
+# useful to help sort tags by latest:
+#   git tag --list --sort=taggerdate
+#   git tag --list --sort=-version:refname
+#   git tag --list --sort=-committerdate
+# but we really only care about the *largest* version tag ever used,
+# because the use case we're after is *bumping* the version. So the
+# user should never want to use the latest version to bump, they want
+# to use the largest version to bump.
+# - Also I didn't dig deep enough to understand, e.g., how the two
+#   options, --sort=taggerdate and --sort=-committerdate, work (like,
+#   what's "taggerdate", never heard of it). Nor did I did into how
+#   --sort=-version:refname works or compares to SemVer sorting rules.
+
+# SAVVY: This returns the largest version ever tagged on a repo,
+# in any branch — so if you'd only like the largest version
+# applied in a *specific* branch, one could pass additional
+# arguments to constrain the results, e.g.,
+#   git_largest_version_tag --contains $(git first-commit)
+# would return the largest verstion tag from the current branch.
+
+git_largest_version_tag () {
+  # Any args are passed to git-tag.
 
   local basevers="$(git_latest_version_basetag "$@")"
 
