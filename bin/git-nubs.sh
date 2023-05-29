@@ -666,7 +666,7 @@ git_latest_version_tag () {
 # ***
 
 git_latest_version_basetag_safe () {
-  git_latest_version_basetag || printf '0.0.0-✗-g0000000'
+  git_latest_version_basetag || printf '0.0.0'
 }
 
 git_since_most_recent_commit_epoch_ts () {
