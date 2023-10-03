@@ -724,22 +724,40 @@ git_since_git_init_commit_epoch_ts () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# (lb): I pulled this function from landonb/release-ghub-pypi,
-#       but its environs still assumed:
-# Mandatory:
-#   R2G2P_REMOTE
-#   RELEASE_VERSION
-#   R2G2P_COMMIT
-# Optional:
-#   R2G2P_GHUB_CLOBBER_CERTIFIED    defaults false
-#   SKIP_PROMPTS                    defaults false
+# SAVVY: This function pulled from landonb/release-ghub-pypi
+#          https://github.com/landonb/release-ghub-pypi
+#        but I didn't change environ names.
+#        - So you'll see the 'release-ghub-pypi' abbrev.,
+#          "R2G2P", i.e., "Release 2 Gh and 2 Pypi".
 #
-# Side-effects:
-#   R2G2P_DO_PUSH_TAG               set to false|true.
+# - Mandatory environs:
+#     R2G2P_REMOTE
+#     RELEASE_VERSION
+#     R2G2P_COMMIT
 #
-# Reentrant support: If previously tagged and released, remove the
-# GitHub release if user wants, and remove tag from remote if points
-# to different commit and user approves.
+# - Optional environs:
+#     R2G2P_GHUB_CLOBBER_CERTIFIED    defaults false
+#     SKIP_PROMPTS                    defaults false
+#
+# - Side-effects (environs set before returning):
+#     R2G2P_DO_PUSH_TAG               set to false|true.
+#
+# - INERT/2023-10-03: We could rename these environs, or perhaps, better
+#   yet, make them args (and then prefer args, but fallback environs).
+#   - But this fcn. works as-is, and adding args sounds like busy work
+#     for very few customers.
+#
+# - INERT/2023-10-03: We could also rename the function: there's
+#   nothing GitHub-specific about it, other than the knowledge
+#   that if you delete a remote tag from GitHub and there's a
+#   release attached to it, that release is also clobbered.
+#
+# SAVVY: This function is reentrant, and only deletes the remote tag
+# if one is found. If the remote tag points at the same commit as the
+# local tag of the same name, the remote tag is silently deleted (well,
+# except for the initial "Sending remote request" message). But if the
+# remote tag points at a different commit, the user will be prompted to
+# continue.
 github_purge_release_and_tags_of_same_name () {
   # See also, for a list of all tags on a remote, e.g., the one named 'release':
   #   git ls-remote --tags release
