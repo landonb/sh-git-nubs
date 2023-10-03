@@ -724,24 +724,23 @@ git_since_git_init_commit_epoch_ts () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# (lb): I pulled this function from landonb/release-ghub-pypi,
+#       but its environs still assumed:
+# Mandatory:
+#   R2G2P_REMOTE
+#   RELEASE_VERSION
+#   R2G2P_COMMIT
+# Optional:
+#   R2G2P_GHUB_CLOBBER_CERTIFIED    defaults false
+#   SKIP_PROMPTS                    defaults false
+#
+# Side-effects:
+#   R2G2P_DO_PUSH_TAG               set to false|true.
+#
+# Reentrant support: If previously tagged and released, remove the
+# GitHub release if user wants, and remove tag from remote if points
+# to different commit and user approves.
 github_purge_release_and_tags_of_same_name () {
-  # (lb): I pulled this function from landonb/release-ghub-pypi,
-  #       but its environs still assumed:
-  # Mandatory:
-  #   R2G2P_REMOTE
-  #   RELEASE_VERSION
-  #   R2G2P_COMMIT
-  # Optional:
-  #   R2G2P_GHUB_CLOBBER_CERTIFIED    defaults false
-  #   SKIP_PROMPTS                    defaults false
-  #
-  # Side-effects:
-  #   R2G2P_DO_PUSH_TAG               set to false|true.
-
-  # Reentrant support: If previously tagged and released, remove the
-  # GitHub release if user wants, and remove tag from remote if points
-  # to different commit and user approves.
-
   # See also, for a list of all tags on a remote, e.g., the one named 'release':
   #   git ls-remote --tags release
   # Note that we can restrict to tags with a fuller path, or with an --option.
