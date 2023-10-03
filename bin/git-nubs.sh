@@ -751,7 +751,7 @@ github_purge_release_and_tags_of_same_name () {
   # NOTE: This is a network call and takes a moment.
   # NOTE: Use default `cut` delimiter, TAB.
   printf '%s' \
-    "Send remote request: ‘git ls-remote --tags ${R2G2P_REMOTE} ${RELEASE_VERSION}’... "
+    "Sending remote request: ‘git ls-remote --tags ${R2G2P_REMOTE} ${RELEASE_VERSION}’... "
   #
   local remote_tag_hash
   remote_tag_hash="$(git ls-remote --tags ${R2G2P_REMOTE} ${RELEASE_VERSION} | cut -f1)"
@@ -776,8 +776,8 @@ github_purge_release_and_tags_of_same_name () {
       echo
       echo "🚨 ATTENTION 🚨: The tag on ‘${R2G2P_REMOTE}’ refers to a different commit."
       echo
-      echo "    release tag ref.  ${R2G2P_COMMIT}"
-      echo "    remote tag ref..  ${tag_commit_hash}"
+      echo "    local  tag ref  ${R2G2P_COMMIT}"
+      echo "    remote tag ref  ${tag_commit_hash}"
       echo
 
       printf %s "Would you like to delete the old remote tag? [y/N] "
