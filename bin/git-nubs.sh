@@ -726,12 +726,9 @@ git_since_git_init_commit_epoch_ts () {
 
 # Verifies named tag exists at specified commit on indicated remote.
 # - If tag exists and points at commit, returns GNUBS_TAG_PRESENT (0).
-# - If tag exists but points at a different commit, the user
-#   is prompted if they want to delete the remote tag.
-#   - If user assents, deletes tag and returns GNUBS_TAG_ABSENT (1).
-#     Or, if user declines, does nothing and returns GNUBS_FAILED (-1).
 # - If tag absent from remote, returns GNUBS_TAG_ABSENT (1).
-# - On any error (or user declines prompt), returns GNUBS_FAILED (-1).
+# - If tag exists but points at other commit, returns GNUBS_TAG_CONFLICT (2),
+#   and assigns the offending commit ID to GNUBS_TAG_COMMIT_OBJECT global.
 #
 # - SAVVY: If the remote is GitHub, and if the tag is a version tag,
 #   GitHub will remove any lightweight release associated with that tag.
@@ -758,15 +755,20 @@ git_tag_remote_verify_commit () {
   local tag_commit="$3"
   local skip_prompt="$4"
 
+  local retcode
+  # retcode: -1: failed
   # retcode:  0: verified remote tag, caller doesn't need to push
   # retcode:  1: missing/deleted tag, caller should push
-  # retcode: -1: failed
+  # retcode:  2: remote tag exists but does not ref tag_commit 
   # NOTE: Not using 'local', so caller can (<ahem>) use (which is
   #       a terrible abuse of scoping, I admit).
+  GNUBS_FAILED=-1
   GNUBS_TAG_PRESENT=0
   GNUBS_TAG_ABSENT=1
-  GNUBS_FAILED=-1
-  local retcode=${GNUBS_FAILED}
+  GNUBS_TAG_CONFLICT=2
+
+  # GLOBAL return value, used on GNUBS_TAG_CONFLICT.
+  GNUBS_TAG_COMMIT_OBJECT=""
 
   # The ls-remote command prints a tag object ID, which we need to resolve
   # to the commit object.
@@ -777,12 +779,21 @@ git_tag_remote_verify_commit () {
   printf '%s' "Sending remote request: ‘${git_cmd}’... "
   #
   # UWAIT: This is a network call and takes a moment.
+  remote_tag_hash_and_path="$(${git_cmd})"
+  #
+  if [ $? -ne 0 ]; then
+    printf '!\n'
+
+    retcode=${GNUBS_FAILED}
+
+    return ${retcode}
+  fi
+  #
   # SAVVY: The default `cut` delimiter is <Tab>.
-  remote_tag_hash="$(git ls-remote --tags ${remote_name} ${tag_name} | cut -f1)"
+  remote_tag_hash="$(echo "${remote_tag_hash_and_path}" | cut -f1)"
   #
   printf '%s\n' " ${remote_tag_hash}"
 
-  local do_delete_remote_tag=false
   if [ -z "${remote_tag_hash}" ]; then
     retcode=${GNUBS_TAG_ABSENT}
   else
@@ -793,47 +804,10 @@ git_tag_remote_verify_commit () {
       # The remote tag has the same commit hash as the current release.
       retcode=${GNUBS_TAG_PRESENT}
     else
-      echo
-      echo "🚨 ATTENTION 🚨: The tag on ‘${remote_name}’ refers to a different commit."
-      echo
-      echo "    local  tag ref  ${tag_commit}"
-      echo "    remote tag ref  ${tag_commit_hash}"
-      echo
+      retcode=${GNUBS_TAG_CONFLICT}
 
-      local the_choice
-      if ${skip_prompt:-false}; then
-        the_choice='n'
-      else
-        printf %s "Would you like to delete the old remote tag? [y/N] "
-
-        read -e the_choice
-      fi
-
-      if [ "${the_choice}" = "y" ] || [ "${the_choice}" = "Y" ]; then
-        do_delete_remote_tag=true
-        # Set after `git push`, below: retcode=...
-      else
-        >&2 echo
-        >&2 echo "ERROR: Tag ‘${tag_name}’ mismatch on ‘${remote_name}’."
-        >&2 echo
-
-        retcode=${GNUBS_FAILED}
-      fi
+      GNUBS_TAG_COMMIT_OBJECT="${tag_commit_hash}"
     fi
-  fi
-
-  if ${do_delete_remote_tag}; then
-    # (lb): I realize there's a less obtuse syntax to delete tags, e.g.,
-    #           git push --delete ${remote_name} ${tag_name}
-    #       But that syntax might also delete a branch of the same name.
-    #       So be :obtuse, and be specific about what's being deleted.
-    local gpr_args="${remote_name} :refs/tags/${tag_name}"
-
-    echo "Deleting Remote Tag: ‘${gpr_args}’..."
-
-    git push ${gpr_args} \
-      && retcode=${GNUBS_TAG_ABSENT} \
-      || retcode=${GNUBS_FAILED}
   fi
 
   return ${retcode}
