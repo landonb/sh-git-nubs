@@ -52,7 +52,7 @@ git_branch_name_full () {
   git rev-parse --symbolic-full-name HEAD
 }
 
-git_check_branch_name () {
+git_branch_name_check_format () {
   git check-ref-format --branch "$1"
 }
 
