@@ -142,6 +142,12 @@ git_tag_exists () {
   git rev-parse --verify refs/tags/${tag_name} > /dev/null 2>&1
 }
 
+git_tag_name_check_format () {
+  local tag_name="$1"
+
+  git check-ref-format "refs/tags/${tag_name}"
+}
+
 # ***
 
 git_HEAD_commit_sha () {
