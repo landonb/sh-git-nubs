@@ -53,7 +53,13 @@ git_branch_name_full () {
 }
 
 git_branch_name_check_format () {
-  git check-ref-format --branch "$1"
+  local branch_name="$1"
+
+  # Use --branch, which is stricter than the more basic:
+  #   git check-ref-format "refs/heads/${branch_name}"
+  # - It's not documented, but echoes valid branch name
+  #   (unlike without --branch, then nothing output).
+  git check-ref-format --branch "${branch_name}" > /dev/null 2>&1
 }
 
 # ***
