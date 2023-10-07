@@ -137,6 +137,13 @@ git_tag_object_name () {
   [ $? -ne 0 ] || echo "${says_git}"
 }
 
+git_tag_commit_object () {
+  local gitref="$1"
+  local opts="$2"
+
+  git_tag_object_name "${gitref}^{commit}" "${opts}"
+}
+
 git_tag_exists () {
   local tag_name="$1"
 
