@@ -212,8 +212,9 @@ git_parent_of () {
 # print counts per author.
 git_number_of_commits () {
   local gitref="${1:-HEAD}"
+  [ -z "$1" ] || shift
 
-  git rev-list --count "${gitref}"
+  git rev-list --count "${gitref}" "$@"
 }
 
 # ***
