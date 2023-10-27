@@ -417,7 +417,13 @@ git_insist_tidy () {
 }
 
 git_nothing_staged () {
-  git diff --cached --quiet
+  local filepath="$1"
+
+  if [ -z "${filepath}" ]; then
+    git diff --cached --quiet
+  else
+    git diff --cached --quiet -- "${filepath}"
+  fi
 }
 
 git_insist_nothing_staged () {
