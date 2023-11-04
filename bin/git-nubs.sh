@@ -182,6 +182,8 @@ git_sha_shorten () {
   printf "${string}" | sed -E 's/^(.{'${maxlen}'}).*/\1/g'
 }
 
+# ***
+
 git_first_commit_message () {
   git --no-pager log --format=%s --max-parents=0 --first-parent HEAD
 }
@@ -189,6 +191,8 @@ git_first_commit_message () {
 git_latest_commit_message () {
   git --no-pager log --format=%s -1 "${1:-HEAD}"
 }
+
+# ***
 
 git_child_of () {
   git --no-pager log --reverse --ancestry-path --format='%H' ${1}..HEAD \
@@ -218,6 +222,8 @@ git_child_of () {
 git_parent_of () {
   git cat-file -p $1 | grep -e "^parent " | awk '{ print $2 }'
 }
+
+# ***
 
 # See also git-extra's git-count, which counts to HEAD, and with --all
 # print counts per author.
