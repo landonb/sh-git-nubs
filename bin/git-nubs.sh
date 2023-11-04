@@ -171,6 +171,17 @@ git_first_commit_sha () {  # aka git_root_commit_sha, perhaps
   git rev-list --max-parents=0 --first-parent HEAD
 }
 
+git_sha_shorten () {
+  local string="$1"
+  local maxlen="${2:-${GIT_NUBS_LENGTH_SHORT_SHA:-12}}"
+
+  if [ -z "${string}" ]; then
+    string="$(git_HEAD_commit_sha)"
+  fi
+
+  printf "${string}" | sed -E 's/^(.{'${maxlen}'}).*/\1/g'
+}
+
 git_first_commit_message () {
   git --no-pager log --format=%s --max-parents=0 --first-parent HEAD
 }
