@@ -22,14 +22,6 @@ git_branch_name () {
 
   # Note that $(git rev-parse HEAD) returns the hash, not the name,
   # so we add the option, --abbrev-ref.
-  # - But first! check there's actually a branch, i.e., if `git init`
-  #   but no `git commit`, rev-parse prints error.
-  # - Note that `test ""` returns false; `test "foo"` returns true.
-  if [ ! "$(command ls -A "${project_root}/.git/refs/heads")" ]; then
-    echo "<?!>"
-
-    return
-  fi
 
   # 2020-09-21: (lb): Adding `=loose`:
   # - For whatever reason, I'm seeing this behavior:
@@ -43,7 +35,15 @@ git_branch_name () {
   #      $ git rev-parse --abbrev-ref=strict  # Prints, e.g., "heads/my_branch"
   # - See also:
   #      $ git symbolic-ref --short HEAD
-  local branch_name=$(git rev-parse --abbrev-ref=loose HEAD)
+
+  local branch_name
+
+  if ! branch_name=$(\
+    git rev-parse --abbrev-ref=loose HEAD 2> /dev/null \
+  ); then
+    # Unnamed branch, e.g., before first commit after `git init .`.
+    branch_name="<?!>"
+  fi
 
   printf %s "${branch_name}"
 }
