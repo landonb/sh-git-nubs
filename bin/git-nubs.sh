@@ -370,7 +370,11 @@ git_project_root_absolute () {
 }
 
 git_project_root_relative () {
-  (cd "./$(git rev-parse --show-cdup)" && pwd -L)
+  (
+    cd "./$(git rev-parse --show-cdup)"
+
+    pwd -L
+  )
 }
 
 # Print empty string if at project root;
@@ -396,7 +400,7 @@ git_insist_git_repo () {
   # A better naive approach might check if there are any refs:
   #   command ls -A ".git/refs/heads"
   # And the better porcelain command checks for HEAD.
-  git rev-parse --abbrev-ref HEAD &> /dev/null && return 0
+  git rev-parse --abbrev-ref HEAD &> /dev/null && return 0 || true
 
   local projpath="${1:-$(pwd)}"
 
@@ -413,16 +417,16 @@ git_insist_git_repo () {
 }
 
 git_insist_pristine () {
-  ! test -n "$(git status --porcelain=v1)" && return 0
+  test -n "$(git status --porcelain=v1)" || return 0
 
   local projpath="${1:-$(pwd)}"
 
-  ${GIT_NUBS_SURROUND_ERROR:-true} && >&2 echo
+  ${GIT_NUBS_SURROUND_ERROR:-true} && >&2 echo || true
   >&2 echo "ERROR: Working directory not tidy."
   >&2 echo "- HINT: Try:"
   >&2 echo
   >&2 echo "   cd \"${projpath}\" && git status"
-  ${GIT_NUBS_SURROUND_ERROR:-true} && >&2 echo
+  ${GIT_NUBS_SURROUND_ERROR:-true} && >&2 echo || true
 
   return 1
 }
@@ -448,12 +452,12 @@ git_insist_nothing_staged () {
 
   local projpath="${1:-$(pwd)}"
 
-  ${GIT_NUBS_SURROUND_ERROR:-true} && >&2 echo
+  ${GIT_NUBS_SURROUND_ERROR:-true} && >&2 echo || true
   >&2 echo "ERROR: Working directory has staged changes."
   >&2 echo "- HINT: Try:"
   >&2 echo
   >&2 echo "   cd \"${projpath}\" && git status"
-  ${GIT_NUBS_SURROUND_ERROR:-true} && >&2 echo
+  ${GIT_NUBS_SURROUND_ERROR:-true} && >&2 echo || true
 
   return 1
 }
@@ -858,11 +862,9 @@ git_tag_remote_verify_commit () {
   local git_cmd="git ls-remote --tags ${remote_name} ${tag_name}"
 
   printf '%s' "Sending remote request: ‘${git_cmd}’... "
-  #
+
   # UWAIT: This is a network call and takes a moment.
-  remote_tag_hash_and_path="$(${git_cmd})"
-  #
-  if [ $? -ne 0 ]; then
+  if ! remote_tag_hash_and_path="$(${git_cmd})"; then
     printf '!\n'
 
     retcode=${GNUBS_FAILED}
