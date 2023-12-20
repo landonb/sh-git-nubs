@@ -763,6 +763,11 @@ git_largest_version_tag () {
 
   local basevers="$(git_latest_version_basetag "$@")"
 
+  if [ -z "${basevers}" ]; then
+
+    return 0
+  fi
+
   # See if the basevers tag is an actual tag (e.g., 1.2.3), otherwise
   # git_latest_version_basetag only found pre-release versions.
   # - A basevers version is higher than any pre-release with the same basevers.
