@@ -781,7 +781,7 @@ git_largest_version_tag () {
   # - A basevers version is higher than any pre-release with the same basevers.
   if git show-ref --tags -- "${basevers}" "v${basevers}" > /dev/null; then
     # Print the tag name with the v-prefix, if present.
-    git tag -l -- "${basevers}" "v${basevers}"
+    git --no-pager tag -l -- "${basevers}" "v${basevers}"
   else
     # Latest version is a prerelease tag. Determine which pre-release
     # from that basevers is the largest.
