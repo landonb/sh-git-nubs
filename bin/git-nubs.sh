@@ -286,6 +286,10 @@ git_remote_default_branch () {
 
   [ -n "${remote}" ] || return 1
 
+  # ALTLY/2024-02-18: We could instead use git-symbolic-ref, but we'd still
+  # want to hit the network to fetch any remote changes first:
+  #   git remote set-head ${remote} --auto
+  #   git symbolic-ref refs/remotes/${remote}/HEAD | sed 's@^refs/remotes/${remote}/@@'
   git remote show ${remote} | grep 'HEAD branch' | cut -d' ' -f5
 }
 
