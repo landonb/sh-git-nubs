@@ -862,6 +862,12 @@ git_since_git_init_commit_epoch_ts () {
     2> /dev/null
 }
 
+# ***
+
+git_commit_date () {
+  git --no-pager log -1 --format=%cs ${1:-HEAD} 2> /dev/null
+}
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # Verifies named tag exists at specified commit on indicated remote.
