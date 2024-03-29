@@ -802,8 +802,10 @@ git_largest_version_tag () {
   # See if the basevers tag is an actual tag (e.g., 1.2.3), otherwise
   # git_latest_version_basetag only found pre-release versions.
   # - A basevers version is higher than any pre-release with the same basevers.
+  # - The grep filters out refs/tags/has/a/path/to/<basevers>
   if git show-ref --tags -- \
-    "${basevers}" "${GITSMART_RE_VERSPARTS__OPTIONAL_PREFIX}${basevers}" > /dev/null \
+    "${basevers}" "${GITSMART_RE_VERSPARTS__OPTIONAL_PREFIX}${basevers}" \
+    | grep -q ' refs/tags/[^/]\+$' \
   ; then
     # Print the tag name with the v-prefix, if present.
     git --no-pager tag -l -- \
