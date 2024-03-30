@@ -694,6 +694,16 @@ _git_tag_list_prefilter () {
   git tag -l "$@" ${GITSMART_VERSION_TAG_PATTERNS}
 }
 
+# Prints tags for a specific remote that match: refs/tags/[0-9]* refs/tags/v[0-9]*
+# - NOTED: Uses --refs, otherwise needs `| sed '/\^{}$/d'` to remove refs/tags/abcd123^{} refs
+_git_tag_list_prefilter_from_remote () {
+  local remote_name="$1"
+
+  git ls-remote --tags --refs "${remote_name}" ${GITNUBS_TAG_PATTERNS_TAGREFS} \
+    | cut -f 2 \
+    | sed 's#^refs/tags/##'
+}
+
 # Prints largest *basetag* of any tag in the list on stdin.
 # - E.g., if largest tag is either "v2.0.1" or "2.0.1-alpha.1",
 #   prints "2.0.1".
@@ -715,6 +725,37 @@ git_latest_version_basetag () {
 git_latest_version_normal () {
   _git_tag_list_prefilter "$@" \
     | _pick_largest_basetag "${GITSMART_RE_VERSPARTS_NORMAL}"
+}
+
+# ***
+
+git_latest_version_from_remote_basetag () {
+  local remote_name="$1"
+
+  _git_tag_list_prefilter_from_remote "${remote_name}" \
+    | _pick_largest_basetag "${GITSMART_RE_VERSPARTS}"
+}
+
+git_latest_version_from_remote_normal () {
+  local remote_name="$1"
+
+  _git_tag_list_prefilter_from_remote "${remote_name}" \
+    | _pick_largest_basetag "${GITSMART_RE_VERSPARTS_NORMAL}"
+}
+
+# Because `git ls-remote` pings the network, cache the results.
+_generate_tag_list_from_remote () {
+  local remote_name="$1"
+
+  local tag_cache="$(mktemp $(basename -- "$0").XXXXXX)"
+
+  if ! _git_tag_list_prefilter_from_remote "${remote_name}" > "${tag_cache}"; then
+    >&2 echo "ERROR: \`git ls-remote \"${remote_name}\"\` failed"
+
+    return 1
+  fi
+
+  printf "%s" "${tag_cache}"
 }
 
 # ***
@@ -774,7 +815,11 @@ latest_version_fulltag () {
 
   # Use Perl, not sed, because of ".*?" non-greedy (so \7 works).
   git tag -l "$@" "${basevers}*" "${GITSMART_RE_VERSPARTS__OPTIONAL_PREFIX}${basevers}*" |
-    grep -E -e "${GITSMART_RE_VERSPARTS}" |
+    _pick_largest_fulltag
+}
+
+_pick_largest_fulltag () {
+  grep -E -e "${GITSMART_RE_VERSPARTS}" |
     perl -ne "print if s/${GITSMART_RE_VERSPARTS}/\6, \7, \1\2.\3.\5\6\7/" |
     sort -k1,1 -k2,2n |
     tail -n1 |
@@ -846,6 +891,88 @@ git_largest_version_tag_normal () {
   # Print the tag name with the v-prefix, if present.
   git --no-pager tag -l -- \
     "${normal_vers}" "${GITSMART_RE_VERSPARTS__OPTIONAL_PREFIX}${normal_vers}"
+}
+
+# ***
+
+git_largest_version_tag_from_remote () {
+  local remote_name="$1"
+
+  if [ -z "${remote_name}" ]; then
+    >&2 echo "ERROR: Missing 'remote_name'"
+
+    return 1
+  fi
+
+  # ***
+
+  # Alternatively, without a cache:
+  #   basevers="$(git_latest_version_from_remote_basetag "${remote_name}")"
+  local tag_cache
+  tag_cache="$(_generate_tag_list_from_remote "${remote_name}")" \
+    || return 1
+
+  local basevers
+  basevers="$( \
+    cat "${tag_cache}" | _pick_largest_basetag "${GITSMART_RE_VERSPARTS}"
+  )"
+
+  # ***
+
+  if [ -n "${basevers}" ]; then
+    # Try to print an exact basetag match.
+    if ! cat "${tag_cache}" \
+        | grep \
+          -e "^${basevers}$" \
+          -e "^${GITSMART_RE_VERSPARTS__OPTIONAL_PREFIX}${basevers}$" \
+        | head -n1 \
+    ; then
+      # Must be a pre-release tag.
+      cat "${tag_cache}" \
+        | grep \
+          -e "^${basevers}" \
+          -e "^${GITSMART_RE_VERSPARTS__OPTIONAL_PREFIX}${basevers}" \
+        | _pick_largest_fulltag
+    fi
+  fi
+
+  command rm "${tag_cache}"
+}
+
+git_largest_version_tag_from_remote_normal () {
+  local remote_name="$1"
+
+  if [ -z "${remote_name}" ]; then
+    >&2 echo "ERROR: Missing 'remote_name'"
+
+    return 1
+  fi
+
+  # ***
+
+  # Alternatively, without a cache:
+  #   normal_vers="$(git_latest_version_from_remote_normal "$@")"
+  local tag_cache
+  tag_cache="$(_generate_tag_list_from_remote "${remote_name}")" \
+    || return 1
+
+  local normal_vers
+  normal_vers="$( \
+    cat "${tag_cache}" | _pick_largest_basetag "${GITSMART_RE_VERSPARTS_NORMAL}"
+  )"
+
+  # ***
+
+  if [ -n "${normal_vers}" ]; then
+    # Print the tag name; include the v-prefix if present.
+    cat "${tag_cache}" \
+      | grep \
+        -e "^${normal_vers}$" \
+        -e "^${GITSMART_RE_VERSPARTS__OPTIONAL_PREFIX}${normal_vers}$" \
+      | head -n1
+  fi
+
+  command rm "${tag_cache}"
 }
 
 # ***
