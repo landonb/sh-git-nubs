@@ -687,15 +687,20 @@ GITSMART_RE_SEMVERSPARTS='^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<pat
 #     git --no-pager tag -l ${GITSMART_VERSION_TAG_PATTERNS}
 GITSMART_VERSION_TAG_PATTERNS="${GITSMART_RE_VERSPARTS__OPTIONAL_PREFIX}[0-9]* [0-9]*"
 
-# Get the latest non-pre-release aka Normal version tag, e.g., 1.2.3.
+GITNUBS_TAG_PATTERNS_TAGREFS="refs/tags/${GITSMART_RE_VERSPARTS__OPTIONAL_PREFIX}[0-9]* refs/tags/[0-9]*"
 
-git_latest_version_filter () {
+# Prints all tags that match: v[0-9]* [0-9]*
+_git_tag_list_prefilter () {
+  git tag -l "$@" ${GITSMART_VERSION_TAG_PATTERNS}
+}
+
+# Prints largest *basetag* of any tag in the list on stdin.
+# - E.g., if largest tag is either "v2.0.1" or "2.0.1-alpha.1",
+#   prints "2.0.1".
+_pick_largest_basetag () {
   local re_versparts="$1"
-  shift
-  # Additional args are passed to git-tag.
 
-  git tag -l "$@" ${GITSMART_VERSION_TAG_PATTERNS} |
-    grep -E -e "${re_versparts}" |
+  grep -E -e "${re_versparts}" |
     sed -E "s/${re_versparts}/\2.\3.\5/" |
     sed -E "s/\.+$//" |
     sort -r --version-sort |
@@ -703,12 +708,16 @@ git_latest_version_filter () {
 }
 
 git_latest_version_basetag () {
-  git_latest_version_filter "${GITSMART_RE_VERSPARTS}" "$@"
+  _git_tag_list_prefilter "$@" \
+    | _pick_largest_basetag "${GITSMART_RE_VERSPARTS}"
 }
 
 git_latest_version_normal () {
-  git_latest_version_filter "${GITSMART_RE_VERSPARTS_NORMAL}" "$@"
+  _git_tag_list_prefilter "$@" \
+    | _pick_largest_basetag "${GITSMART_RE_VERSPARTS_NORMAL}"
 }
+
+# ***
 
 # Get the latest pre-release version tag for a given non-pre-release version.
 # - E.g., pass it "1.0.0" and it prints "1.0.0-rc.1" (per the example below).
