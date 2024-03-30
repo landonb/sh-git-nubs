@@ -686,6 +686,7 @@ GITSMART_VERSION_TAG_PATTERNS="${GITSMART_RE_VERSPARTS__OPTIONAL_PREFIX}[0-9]* [
 
 git_latest_version_filter () {
   local re_versparts="$1"
+  shift
   # Additional args are passed to git-tag.
 
   git tag -l "$@" ${GITSMART_VERSION_TAG_PATTERNS} |
@@ -754,6 +755,7 @@ git_latest_version_normal () {
 #   no pre-release tags; or nothing if there's no basevers tag).
 latest_version_fulltag () {
   local basevers="$1"
+  shift
   # Any additional args are passed to git-tag.
 
   # Use Perl, not sed, because of ".*?" non-greedy (so \7 works).
