@@ -862,6 +862,8 @@ git_largest_version_tag () {
 
   # See if the basevers tag is an actual tag (e.g., 1.2.3), otherwise
   # git_latest_version_basetag only found pre-release versions.
+  # - git show-ref patterns only match are start of the ref name,
+  #   so it's different than using `git tag -l <pattern>`.
   # - A basevers version is higher than any pre-release with the same basevers.
   # - The grep filters out refs/tags/has/a/path/to/<basevers>
   if git show-ref --tags -- \
