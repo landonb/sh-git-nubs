@@ -4,7 +4,7 @@ Bits of reusable Git and GitHub shell functions.
 
 ## Usage
 
-Source the `bin/git-nubs.sh` library, then call its functions from your scripts.
+Source the `lib/git-nubs.sh` library, then call its functions from your scripts.
 
 E.g.,
 
