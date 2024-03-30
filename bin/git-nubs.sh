@@ -78,8 +78,13 @@ git_branch_name_check_format () {
 #   https://stackoverflow.com/questions/171550/
 
 # Prints the tracking aka upstream branch.
+# - BWARE: This will silently errexit, if you're not prepared.
 git_tracking_branch () {
-  git rev-parse --abbrev-ref --symbolic-full-name @{u} 2> /dev/null
+  git_tracking_branch_with_error 2> /dev/null
+}
+
+git_tracking_branch_with_error () {
+  git rev-parse --abbrev-ref --symbolic-full-name @{u}
 }
 
 git_upstream () {
@@ -310,7 +315,7 @@ git_remote_default_branch () {
 git_upstream_parse_remote_name () {
   local remote_branch="$1"
 
-  [ -n "${remote_branch}" ] || remote_branch="$(git_tracking_branch)"
+  [ $# -eq 1 ] || remote_branch="$(git_tracking_branch_with_error)"
 
   # echo "$1" | sed 's/\/.*$//'
   # echo "$1" | sed -E 's#^(refs/remotes/)?([^/]+)/.*$#\2#'
@@ -322,7 +327,7 @@ git_upstream_parse_remote_name () {
 git_upstream_parse_branch_name () {
   local remote_branch="$1"
 
-  [ -n "${remote_branch}" ] || remote_branch="$(git_tracking_branch)"
+  [ $# -eq 1 ] || remote_branch="$(git_tracking_branch_with_error)"
 
   # echo "$1" | sed 's/^[^\/]*\///'
   # echo "$1" | sed -E 's#^(refs/remotes/)?[^/]+/##'
