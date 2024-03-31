@@ -444,12 +444,12 @@ git_insist_pristine () {
 
   local projpath="${1:-$(pwd)}"
 
-  ${GIT_NUBS_SURROUND_ERROR:-true} && >&2 echo || true
+  ${GITNUBS_SURROUND_ERROR:-true} && >&2 echo || true
   >&2 echo "ERROR: Working directory not tidy."
   >&2 echo "- HINT: Try:"
   >&2 echo
   >&2 echo "   cd \"${projpath}\" && git status"
-  ${GIT_NUBS_SURROUND_ERROR:-true} && >&2 echo || true
+  ${GITNUBS_SURROUND_ERROR:-true} && >&2 echo || true
 
   return 1
 }
@@ -475,12 +475,12 @@ git_insist_nothing_staged () {
 
   local projpath="${1:-$(pwd)}"
 
-  ${GIT_NUBS_SURROUND_ERROR:-true} && >&2 echo || true
+  ${GITNUBS_SURROUND_ERROR:-true} && >&2 echo || true
   >&2 echo "ERROR: Working directory has staged changes."
   >&2 echo "- HINT: Try:"
   >&2 echo
   >&2 echo "   cd \"${projpath}\" && git status"
-  ${GIT_NUBS_SURROUND_ERROR:-true} && >&2 echo || true
+  ${GITNUBS_SURROUND_ERROR:-true} && >&2 echo || true
 
   return 1
 }
