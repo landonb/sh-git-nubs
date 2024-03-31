@@ -684,14 +684,14 @@ GITSMART_RE_SEMVERSPARTS='^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<pat
 # - We use it as a git-tag prefilter, but it's really the grep after it
 #   truly filters the version tags.
 # - CPYST: Copy-paste test snippet:
-#     git --no-pager tag -l ${GITSMART_VERSION_TAG_PATTERNS}
-GITSMART_VERSION_TAG_PATTERNS="${GITSMART_RE_VERSPARTS__OPTIONAL_PREFIX}[0-9]* [0-9]*"
+#     git --no-pager tag -l ${GITNUBS_VERSION_TAG_PATTERNS}
+GITNUBS_VERSION_TAG_PATTERNS="${GITSMART_RE_VERSPARTS__OPTIONAL_PREFIX}[0-9]* [0-9]*"
 
 GITNUBS_TAG_PATTERNS_TAGREFS="refs/tags/${GITSMART_RE_VERSPARTS__OPTIONAL_PREFIX}[0-9]* refs/tags/[0-9]*"
 
 # Prints all tags that match: v[0-9]* [0-9]*
 _git_tag_list_prefilter () {
-  git tag -l "$@" ${GITSMART_VERSION_TAG_PATTERNS}
+  git tag -l "$@" ${GITNUBS_VERSION_TAG_PATTERNS}
 }
 
 # Prints tags for a specific remote that match: refs/tags/[0-9]* refs/tags/v[0-9]*
