@@ -810,7 +810,7 @@ _generate_tag_list_from_remote () {
 # - That is to say, this function returns the largest pre-release
 #   tag for a given basevers (or the basevers itself if there are
 #   no pre-release tags; or nothing if there's no basevers tag).
-latest_version_fulltag () {
+_latest_version_fulltag () {
   local basevers="$1"
   shift
   # Any additional args are passed to git-tag.
@@ -878,7 +878,7 @@ git_largest_version_tag () {
   else
     # Latest version is a prerelease tag. Determine which pre-release
     # from that basevers is the largest.
-    latest_version_fulltag "${basevers}" "$@"
+    _latest_version_fulltag "${basevers}" "$@"
   fi
 }
 
