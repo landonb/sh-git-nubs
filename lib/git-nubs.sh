@@ -194,7 +194,7 @@ git_sha_shorten () {
   local string="$1"
   local maxlen="${2:-${GIT_NUBS_LENGTH_SHORT_SHA:-12}}"
 
-  if [ -z "${string}" ]; then
+  if [ $# -eq 0 ]; then
     string="$(git_HEAD_commit_sha)"
   fi
 
@@ -248,7 +248,7 @@ git_parent_of () {
 # print counts per author.
 git_number_of_commits () {
   local gitref="${1:-HEAD}"
-  [ -z "$1" ] || shift
+  [ $# -lt 1 ] || shift
 
   git rev-list --count "${gitref}" "$@"
 }
@@ -463,7 +463,7 @@ git_insist_tidy () {
 git_nothing_staged () {
   local filepath="$1"
 
-  if [ -z "${filepath}" ]; then
+  if [ $# -eq 0 ]; then
     git diff --cached --quiet
   else
     git diff --cached --quiet -- "${filepath}"
