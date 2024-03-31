@@ -651,7 +651,7 @@ GITSMART_RE_VERSPARTS="^${GITNUBS_RE_VERSPARTS__INCLUSIVE}$"
 
 # For culling pre-release versions (to return latest *normal* version tag).
 GITNUBS_RE_VERSPARTS_NORMAL__INCLUSIVE="(${GITNUBS_RE_VERSPARTS__OPTIONAL_PREFIX})?([0-9]+)\.([0-9]+)(\.([0-9]+))?"
-GITSMART_RE_VERSPARTS_NORMAL="^${GITNUBS_RE_VERSPARTS_NORMAL__INCLUSIVE}$"
+GITNUBS_RE_VERSPARTS_NORMAL="^${GITNUBS_RE_VERSPARTS_NORMAL__INCLUSIVE}$"
 
 # CXREF: SemVer Perl regex, from the source, unaltered.
 #   https://semver.org/
@@ -724,7 +724,7 @@ git_latest_version_basetag () {
 
 git_latest_version_normal () {
   _git_tag_list_prefilter "$@" \
-    | _pick_largest_basetag "${GITSMART_RE_VERSPARTS_NORMAL}"
+    | _pick_largest_basetag "${GITNUBS_RE_VERSPARTS_NORMAL}"
 }
 
 # ***
@@ -740,7 +740,7 @@ git_latest_version_from_remote_normal () {
   local remote_name="$1"
 
   _git_tag_list_prefilter_from_remote "${remote_name}" \
-    | _pick_largest_basetag "${GITSMART_RE_VERSPARTS_NORMAL}"
+    | _pick_largest_basetag "${GITNUBS_RE_VERSPARTS_NORMAL}"
 }
 
 # Because `git ls-remote` pings the network, cache the results.
@@ -960,7 +960,7 @@ git_largest_version_tag_from_remote_normal () {
 
   local normal_vers
   normal_vers="$( \
-    cat "${tag_cache}" | _pick_largest_basetag "${GITSMART_RE_VERSPARTS_NORMAL}"
+    cat "${tag_cache}" | _pick_largest_basetag "${GITNUBS_RE_VERSPARTS_NORMAL}"
   )"
 
   # ***
