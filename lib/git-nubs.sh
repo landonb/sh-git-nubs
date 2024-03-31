@@ -192,7 +192,7 @@ git_first_commit_sha () {  # aka git_root_commit_sha, perhaps
 
 git_sha_shorten () {
   local string="$1"
-  local maxlen="${2:-${GIT_NUBS_LENGTH_SHORT_SHA:-12}}"
+  local maxlen="${2:-${GITNUBS_LENGTH_SHORT_SHA:-12}}"
 
   if [ $# -eq 0 ]; then
     string="$(git_HEAD_commit_sha)"
