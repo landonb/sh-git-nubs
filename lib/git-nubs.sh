@@ -731,6 +731,10 @@ git_latest_version_normal () {
     | _pick_largest_basetag "${GITNUBS_RE_VERSPARTS_NORMAL}"
 }
 
+git_latest_version_basetag_safe () {
+  git_latest_version_basetag || printf '0.0.0'
+}
+
 # ***
 
 git_latest_version_from_remote_basetag () {
@@ -981,11 +985,7 @@ git_largest_version_tag_from_remote_normal () {
   command rm "${tag_cache}"
 }
 
-# ***
-
-git_latest_version_basetag_safe () {
-  git_latest_version_basetag || printf '0.0.0'
-}
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 git_since_most_recent_commit_epoch_ts () {
   git --no-pager log -1 --format=%at HEAD 2> /dev/null
