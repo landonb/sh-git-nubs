@@ -698,6 +698,8 @@ _git_tag_list_prefilter () {
 
 # Prints tags for a specific remote that match: refs/tags/[0-9]* refs/tags/v[0-9]*
 # - NOTED: Uses --refs, otherwise needs `| sed '/\^{}$/d'` to remove refs/tags/abcd123^{} refs
+# CPYST:
+#   git ls-remote --tags --refs starter refs/tags/[0-9]* refs/tags/v[0-9]* | cut -f 2 | sed 's#^refs/tags/##'
 _git_tag_list_prefilter_from_remote () {
   local remote_name="$1"
 
