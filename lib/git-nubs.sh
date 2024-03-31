@@ -171,11 +171,39 @@ git_tag_object_name () {
 git_tag_commit_object () {
   local gitref="$1"
 
+  local failed_rev_list=false
+
   # ALTLY:
   #
   #   git_tag_object_name "${gitref}^{commit}"
 
-  git rev-list -n 1 "${gitref}" 2> /dev/null
+  local id_from_rev_list=""
+  id_from_rev_list="$(git rev-list -n 1 "${gitref}" 2> /dev/null)" \
+    || failed_rev_list=true
+
+  # TRACK/2024-03-31: A curiosity:
+  if ${GITNUBS_DEV:-false}; then
+    local failed_rev_parse=false
+
+    local id_from_rev_parse=""
+    id_from_rev_parse="$(git_tag_object_name "${gitref}^{commit}")" \
+      || failed_rev_parse=true
+
+    if [ "${failed_rev_list}" != "${failed_rev_parse}" ] \
+      || [ "${id_from_rev_list}" != "${id_from_rev_parse}" ] \
+    ; then
+      >&2 echo
+      >&2 echo "GAFFE: Unexpected: \`git rev-list -n 1 ${gitref}\`     " \
+        "→ “${id_from_rev_list}” [failed: ${failed_rev_list}]"
+      >&2 echo "   different than: \`git rev-parse ${gitref}^{commit}\`" \
+        "→ “${id_from_rev_parse}” [failed: ${failed_rev_parse}]"
+      >&2 echo
+    fi
+  fi
+
+  printf "%s" "${id_from_rev_list}"
+
+  ! ${failed_rev_list}
 }
 
 git_tag_exists () {
