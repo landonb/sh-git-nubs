@@ -590,7 +590,7 @@ git_versions_tagged_for_commit_object__THE_HARD_WAY () {
   # then isolate just the tag -- and match only tags with a leading digit
   # (assuming that indicates a version tag, to exclude non-version tags).
   git show-ref --tags -d \
-    | grep -E -e "^${hash}.* refs/tags/${GITSMART_RE_VERSPARTS__INCLUSIVE}" \
+    | grep -E -e "^${hash}.* refs/tags/${GITNUBS_RE_VERSPARTS__INCLUSIVE}" \
     | sed \
       -e 's#.* refs/tags/v\?##' \
       -e 's/\^{}//'
@@ -646,8 +646,8 @@ GITNUBS_RE_VERSPARTS__OPTIONAL_PREFIX="${GITNUBS_RE_VERSPARTS__OPTIONAL_PREFIX:-
 #     $ echo "v1.2.3-1alpha1" | sed -E "s/${GITSMART_RE_VERSPARTS}/NubsVer: \1 \2 \3 \5 \6 \7/"
 #     NubsVer: v 1 2 3 -1alpha1
 
-GITSMART_RE_VERSPARTS__INCLUSIVE="(${GITNUBS_RE_VERSPARTS__OPTIONAL_PREFIX})?([0-9]+)\.([0-9]+)(\.([0-9]+)([^0-9].*?)?([0-9]+)?)?"
-GITSMART_RE_VERSPARTS="^${GITSMART_RE_VERSPARTS__INCLUSIVE}$"
+GITNUBS_RE_VERSPARTS__INCLUSIVE="(${GITNUBS_RE_VERSPARTS__OPTIONAL_PREFIX})?([0-9]+)\.([0-9]+)(\.([0-9]+)([^0-9].*?)?([0-9]+)?)?"
+GITSMART_RE_VERSPARTS="^${GITNUBS_RE_VERSPARTS__INCLUSIVE}$"
 
 # For culling pre-release versions (to return latest *normal* version tag).
 GITNUBS_RE_VERSPARTS_NORMAL__INCLUSIVE="(${GITNUBS_RE_VERSPARTS__OPTIONAL_PREFIX})?([0-9]+)\.([0-9]+)(\.([0-9]+))?"
