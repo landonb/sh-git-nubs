@@ -157,11 +157,25 @@ git_tag_object_name () {
   [ $? -ne 0 ] || echo "${says_git}"
 }
 
+# There are a few ways to find the commit ID for a tag, including:
+#
+#   git rev-parse <TAG>^{}
+#   git rev-parse <TAG>^{commit}
+#   git rev-list -n 1 <TAG>
+#
+# - AFAIK, either `rev-parse <TAG>^{}` or `rev-list -n 1 <TAG>` should
+#   find all tags.
+#   - BWARE: Not all functions that list/find tags find both annotated
+#     and lightweight tags.
+
 git_tag_commit_object () {
   local gitref="$1"
-  local opts="$2"
 
-  git_tag_object_name "${gitref}^{commit}" "${opts}"
+  # ALTLY:
+  #
+  #   git_tag_object_name "${gitref}^{commit}"
+
+  git rev-list -n 1 "${gitref}" 2> /dev/null
 }
 
 git_tag_exists () {
