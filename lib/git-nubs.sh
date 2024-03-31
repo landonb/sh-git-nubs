@@ -612,7 +612,7 @@ git_versions_tagged_for_commit_object () {
 
 # ALTLY/2024-02-26: Some projects use an alternative prefix.
 # - E.g., `tig` uses a "tig-" prefix, such as "tig-2.5.8".
-GITNUBS_RE_VERSPARTS__OPTIONAL_PREFIX="${GITNUBS_RE_VERSPARTS__OPTIONAL_PREFIX:-v}"
+GITNUBS_PREFIX="${GITNUBS_PREFIX:-v}"
 
 # Match groups: \1: 'v'       (optional)
 #               \2: major     (required)
@@ -646,11 +646,11 @@ GITNUBS_RE_VERSPARTS__OPTIONAL_PREFIX="${GITNUBS_RE_VERSPARTS__OPTIONAL_PREFIX:-
 #     $ echo "v1.2.3-1alpha1" | sed -E "s/${GITNUBS_RE_VERSPARTS}/NubsVer: \1 \2 \3 \5 \6 \7/"
 #     NubsVer: v 1 2 3 -1alpha1
 
-GITNUBS_RE_VERSPARTS__INCLUSIVE="(${GITNUBS_RE_VERSPARTS__OPTIONAL_PREFIX})?([0-9]+)\.([0-9]+)(\.([0-9]+)([^0-9].*?)?([0-9]+)?)?"
+GITNUBS_RE_VERSPARTS__INCLUSIVE="(${GITNUBS_PREFIX})?([0-9]+)\.([0-9]+)(\.([0-9]+)([^0-9].*?)?([0-9]+)?)?"
 GITNUBS_RE_VERSPARTS="^${GITNUBS_RE_VERSPARTS__INCLUSIVE}$"
 
 # For culling pre-release versions (to return latest *normal* version tag).
-GITNUBS_RE_VERSPARTS_NORMAL__INCLUSIVE="(${GITNUBS_RE_VERSPARTS__OPTIONAL_PREFIX})?([0-9]+)\.([0-9]+)(\.([0-9]+))?"
+GITNUBS_RE_VERSPARTS_NORMAL__INCLUSIVE="(${GITNUBS_PREFIX})?([0-9]+)\.([0-9]+)(\.([0-9]+))?"
 GITNUBS_RE_VERSPARTS_NORMAL="^${GITNUBS_RE_VERSPARTS_NORMAL__INCLUSIVE}$"
 
 # CXREF: SemVer Perl regex, from the source, unaltered.
@@ -687,9 +687,9 @@ GITNUBS_RE_SEMVERSPARTS='^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patc
 #   truly filters the version tags.
 # - CPYST: Copy-paste test snippet:
 #     git --no-pager tag -l ${GITNUBS_VERSION_TAG_PATTERNS}
-GITNUBS_VERSION_TAG_PATTERNS="${GITNUBS_RE_VERSPARTS__OPTIONAL_PREFIX}[0-9]* [0-9]*"
+GITNUBS_VERSION_TAG_PATTERNS="${GITNUBS_PREFIX}[0-9]* [0-9]*"
 
-GITNUBS_TAG_PATTERNS_TAGREFS="refs/tags/${GITNUBS_RE_VERSPARTS__OPTIONAL_PREFIX}[0-9]* refs/tags/[0-9]*"
+GITNUBS_TAG_PATTERNS_TAGREFS="refs/tags/${GITNUBS_PREFIX}[0-9]* refs/tags/[0-9]*"
 
 # Prints all tags that match: v[0-9]* [0-9]*
 _git_tag_list_prefilter () {
@@ -818,7 +818,7 @@ _latest_version_fulltag () {
   # Any additional args are passed to git-tag.
 
   # Use Perl, not sed, because of ".*?" non-greedy (so \7 works).
-  git tag -l "$@" "${basevers}*" "${GITNUBS_RE_VERSPARTS__OPTIONAL_PREFIX}${basevers}*" |
+  git tag -l "$@" "${basevers}*" "${GITNUBS_PREFIX}${basevers}*" |
     _pick_largest_fulltag
 }
 
@@ -871,12 +871,12 @@ git_largest_version_tag () {
   # - A basevers version is higher than any pre-release with the same basevers.
   # - The grep filters out refs/tags/has/a/path/to/<basevers>
   if git show-ref --tags -- \
-    "${basevers}" "${GITNUBS_RE_VERSPARTS__OPTIONAL_PREFIX}${basevers}" \
+    "${basevers}" "${GITNUBS_PREFIX}${basevers}" \
     | grep -q ' refs/tags/[^/]\+$' \
   ; then
     # Print the tag name with the v-prefix, if present.
     git --no-pager tag -l -- \
-      "${basevers}" "${GITNUBS_RE_VERSPARTS__OPTIONAL_PREFIX}${basevers}"
+      "${basevers}" "${GITNUBS_PREFIX}${basevers}"
   else
     # Latest version is a prerelease tag. Determine which pre-release
     # from that basevers is the largest.
@@ -896,7 +896,7 @@ git_largest_version_tag_normal () {
 
   # Print the tag name with the v-prefix, if present.
   git --no-pager tag -l -- \
-    "${normal_vers}" "${GITNUBS_RE_VERSPARTS__OPTIONAL_PREFIX}${normal_vers}"
+    "${normal_vers}" "${GITNUBS_PREFIX}${normal_vers}"
 }
 
 # ***
@@ -930,14 +930,14 @@ git_largest_version_tag_from_remote () {
     if ! cat "${tag_cache}" \
         | grep \
           -e "^${basevers}$" \
-          -e "^${GITNUBS_RE_VERSPARTS__OPTIONAL_PREFIX}${basevers}$" \
+          -e "^${GITNUBS_PREFIX}${basevers}$" \
         | head -n1 \
     ; then
       # Must be a pre-release tag.
       cat "${tag_cache}" \
         | grep \
           -e "^${basevers}" \
-          -e "^${GITNUBS_RE_VERSPARTS__OPTIONAL_PREFIX}${basevers}" \
+          -e "^${GITNUBS_PREFIX}${basevers}" \
         | _pick_largest_fulltag
     fi
   fi
@@ -974,7 +974,7 @@ git_largest_version_tag_from_remote_normal () {
     cat "${tag_cache}" \
       | grep \
         -e "^${normal_vers}$" \
-        -e "^${GITNUBS_RE_VERSPARTS__OPTIONAL_PREFIX}${normal_vers}$" \
+        -e "^${GITNUBS_PREFIX}${normal_vers}$" \
       | head -n1
   fi
 
