@@ -271,7 +271,7 @@ git_remote_branch_exists () {
 git_remote_branch_object_name () {
   local remote_branch="$(_git_print_remote_branch_unambiguous "${1}" "${2}")"
 
-  # Prints SHA1.
+  # Prints SHA on success, or repeats input and returns nonzero on failure
   git rev-parse "${remote_branch}" 2> /dev/null
 }
 
