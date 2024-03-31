@@ -1079,7 +1079,7 @@ git_tag_remote_verify_commit () {
 
   local git_cmd="git ls-remote --tags ${remote_name} ${tag_name}"
 
-  printf '%s' "Sending remote request: ‘${git_cmd}’... "
+  printf '%s' "Sending remote request: ‘${git_cmd}’..."
 
   local remote_tag_hash_and_path=""
 
