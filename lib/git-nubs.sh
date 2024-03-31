@@ -1091,10 +1091,10 @@ git_tag_remote_verify_commit () {
 
     return ${retcode}
   fi
-  #
+
   # SAVVY: The default `cut` delimiter is <Tab>.
   remote_tag_hash="$(echo "${remote_tag_hash_and_path}" | cut -f1)"
-  #
+
   printf '%s\n' " ${remote_tag_hash}"
 
   if [ -z "${remote_tag_hash}" ]; then
