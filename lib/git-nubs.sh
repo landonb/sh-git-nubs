@@ -657,20 +657,22 @@ GITNUBS_RE_VERSPARTS_NORMAL="^${GITNUBS_RE_VERSPARTS_NORMAL__INCLUSIVE}$"
 #   https://semver.org/
 #   https://regex101.com/r/Ly7O1x/3/
 # - You could try, e.g.,
-#     $ perl -pe "s/${GITSMART_RE_SEMVERSPARTS}/SemVer: \1 \2 \3 \4 \5/" <<<"1.0.0+alpha-a.b-c.1.d"
+#     $ perl -pe "s/${GITNUBS_RE_SEMVERSPARTS}/SemVer: \1 \2 \3 \4 \5/" <<<"1.0.0+alpha-a.b-c.1.d"
 #     SemVer: 1 0 0  alpha-a.b-c.1.d
-#     $ perl -pe "s/${GITSMART_RE_SEMVERSPARTS}/SemVer: \1 \2 \3 \4 \5/" <<<"1.0.0-alpha+a.b-c.1.d"
+#     $ perl -pe "s/${GITNUBS_RE_SEMVERSPARTS}/SemVer: \1 \2 \3 \4 \5/" <<<"1.0.0-alpha+a.b-c.1.d"
 #     SemVer: 1 0 0 alpha a.b-c.1.d
 #   Or
-#     $ echo "1.2.3-a.4" | perl -ne "print if s/${GITSMART_RE_SEMVERSPARTS}/\1 \2 \3 \4 \5/"
+#     $ echo "1.2.3-a.4" | perl -ne "print if s/${GITNUBS_RE_SEMVERSPARTS}/\1 \2 \3 \4 \5/"
 #     1 2 3 a.4
 #   Or
-#     $ echo "1.2.3-a.4" | perl -ne "print if /${GITSMART_RE_SEMVERSPARTS}/"
+#     $ echo "1.2.3-a.4" | perl -ne "print if /${GITNUBS_RE_SEMVERSPARTS}/"
 #     1.2.3-a.4
-#     $ echo "v1.2.3" | perl -ne "print if /${GITSMART_RE_SEMVERSPARTS}/"
+#     $ echo "v1.2.3" | perl -ne "print if /${GITNUBS_RE_SEMVERSPARTS}/"
 #     # OUTPUT: None. Not a valid SemVer.
+#
+# NOTED: This regex not used herein, but provided for end users. 
 
-GITSMART_RE_SEMVERSPARTS='^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$'
+GITNUBS_RE_SEMVERSPARTS='^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$'
 
 # ***
 
