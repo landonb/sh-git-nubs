@@ -1095,7 +1095,10 @@ git_tag_remote_verify_commit () {
   # SAVVY: The default `cut` delimiter is <Tab>.
   remote_tag_hash="$(echo "${remote_tag_hash_and_path}" | cut -f1)"
 
-  printf '%s\n' " ${remote_tag_hash}"
+  # Finish the output message.
+  printf '%s\n' " $( \
+    git_sha_shorten "${remote_tag_hash}" ${GITNUBS_LENGTH_SHORTER_SHA:-7}
+  )"
 
   if [ -z "${remote_tag_hash}" ]; then
     retcode=${GNUBS_TAG_ABSENT}
