@@ -1081,6 +1081,8 @@ git_tag_remote_verify_commit () {
 
   printf '%s' "Sending remote request: ‘${git_cmd}’... "
 
+  local remote_tag_hash_and_path=""
+
   # UWAIT: This is a network call and takes a moment.
   if ! remote_tag_hash_and_path="$(${git_cmd})"; then
     printf '!\n'
