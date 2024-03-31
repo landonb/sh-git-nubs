@@ -602,7 +602,7 @@ git_versions_tagged_for_commit_object () {
   local object="$1"
 
   git tag --list --points-at ${object} \
-    | grep -E -e "${GITSMART_RE_VERSPARTS}" \
+    | grep -E -e "${GITNUBS_RE_VERSPARTS}" \
     | sed -e 's/^v//'
 }
 
@@ -640,14 +640,14 @@ GITNUBS_RE_VERSPARTS__OPTIONAL_PREFIX="${GITNUBS_RE_VERSPARTS__OPTIONAL_PREFIX:-
 #     is redundant. So you can use this regex for matching with any
 #     command, but you'll want to use Perl for splitting or substitution.
 # - Remember to use Perl for substitution, e.g.,
-#     $ perl -pe "s/${GITSMART_RE_VERSPARTS}/NubsVer: \1 \2 \3 \5 \6 \7/" <<<"v1.2.3-1alpha1"
+#     $ perl -pe "s/${GITNUBS_RE_VERSPARTS}/NubsVer: \1 \2 \3 \5 \6 \7/" <<<"v1.2.3-1alpha1"
 #     NubsVer: v 1 2 3 -1alpha 1
 #   But sed will be too greedy (and what should be \7 will be gobbled by \6):
-#     $ echo "v1.2.3-1alpha1" | sed -E "s/${GITSMART_RE_VERSPARTS}/NubsVer: \1 \2 \3 \5 \6 \7/"
+#     $ echo "v1.2.3-1alpha1" | sed -E "s/${GITNUBS_RE_VERSPARTS}/NubsVer: \1 \2 \3 \5 \6 \7/"
 #     NubsVer: v 1 2 3 -1alpha1
 
 GITNUBS_RE_VERSPARTS__INCLUSIVE="(${GITNUBS_RE_VERSPARTS__OPTIONAL_PREFIX})?([0-9]+)\.([0-9]+)(\.([0-9]+)([^0-9].*?)?([0-9]+)?)?"
-GITSMART_RE_VERSPARTS="^${GITNUBS_RE_VERSPARTS__INCLUSIVE}$"
+GITNUBS_RE_VERSPARTS="^${GITNUBS_RE_VERSPARTS__INCLUSIVE}$"
 
 # For culling pre-release versions (to return latest *normal* version tag).
 GITNUBS_RE_VERSPARTS_NORMAL__INCLUSIVE="(${GITNUBS_RE_VERSPARTS__OPTIONAL_PREFIX})?([0-9]+)\.([0-9]+)(\.([0-9]+))?"
@@ -719,7 +719,7 @@ _pick_largest_basetag () {
 
 git_latest_version_basetag () {
   _git_tag_list_prefilter "$@" \
-    | _pick_largest_basetag "${GITSMART_RE_VERSPARTS}"
+    | _pick_largest_basetag "${GITNUBS_RE_VERSPARTS}"
 }
 
 git_latest_version_normal () {
@@ -733,7 +733,7 @@ git_latest_version_from_remote_basetag () {
   local remote_name="$1"
 
   _git_tag_list_prefilter_from_remote "${remote_name}" \
-    | _pick_largest_basetag "${GITSMART_RE_VERSPARTS}"
+    | _pick_largest_basetag "${GITNUBS_RE_VERSPARTS}"
 }
 
 git_latest_version_from_remote_normal () {
@@ -819,8 +819,8 @@ latest_version_fulltag () {
 }
 
 _pick_largest_fulltag () {
-  grep -E -e "${GITSMART_RE_VERSPARTS}" |
-    perl -ne "print if s/${GITSMART_RE_VERSPARTS}/\6, \7, \1\2.\3.\5\6\7/" |
+  grep -E -e "${GITNUBS_RE_VERSPARTS}" |
+    perl -ne "print if s/${GITNUBS_RE_VERSPARTS}/\6, \7, \1\2.\3.\5\6\7/" |
     sort -k1,1 -k2,2n |
     tail -n1 |
     sed -E "s/^[^,]*, [^,]*, //"
@@ -916,7 +916,7 @@ git_largest_version_tag_from_remote () {
 
   local basevers
   basevers="$( \
-    cat "${tag_cache}" | _pick_largest_basetag "${GITSMART_RE_VERSPARTS}"
+    cat "${tag_cache}" | _pick_largest_basetag "${GITNUBS_RE_VERSPARTS}"
   )"
 
   # ***
