@@ -115,6 +115,12 @@ git_is_same_commit () {
   [ "$(git_commit_object_name "${lhs}")" = "$(git_commit_object_name "${rhs}")" ]
 }
 
+git_object_name_check_format () {
+  local tag_name="$1"
+
+  git check-ref-format "refs/tags/${tag_name}"
+}
+
 # There are a few ways to find the object name (SHA) for a tag, including:
 #
 #   git rev-parse refs/tags/sometag
