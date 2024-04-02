@@ -155,9 +155,9 @@ git_tag_object_name () {
     return 1
   fi
 
-  local says_git=""
-  says_git="$(git rev-parse ${opts} refs/tags/${gitref} 2> /dev/null)"
-  [ $? -ne 0 ] || echo "${says_git}"
+  # rev-parse normally echoes gitref even if it fails (and also prints to
+  # stderr), unless --verify.
+  git rev-parse ${opts} --verify --end-of-options "refs/tags/${gitref}" 2> /dev/null
 }
 
 # There are a few ways to find the commit ID for a tag, including:
