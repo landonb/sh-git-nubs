@@ -152,6 +152,7 @@ git_object_name_check_format () {
 #   - Exits zero.
 # Here we mimic --tags behavior.
 
+# BWARE: Returns the tag object ID, not the commit to which it's attached.
 git_tag_object_name () {
   local gitref="$1"
   local opts="$2"
