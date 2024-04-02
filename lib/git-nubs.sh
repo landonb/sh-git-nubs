@@ -187,7 +187,7 @@ git_tag_commit_object () {
   #   git_tag_object_name "${gitref}^{commit}"
 
   local id_from_rev_list=""
-  id_from_rev_list="$(git rev-list -n 1 "${gitref}" 2> /dev/null)" \
+  id_from_rev_list="$(git rev-list -n 1 "refs/tags/${gitref}" 2> /dev/null)" \
     || failed_rev_list=true
 
   # TRACK/2024-03-31: A curiosity:
