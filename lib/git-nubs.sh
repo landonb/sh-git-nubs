@@ -329,19 +329,20 @@ git_remote_exists () {
 }
 
 git_remote_branch_exists () {
-  local remote_branch="$(_git_print_remote_branch_unambiguous "${1}" "${2}")"
+  local upstream_ref="$(_git_print_remote_branch_unambiguous "${1}" "${2}")"
 
   # SHOWS: [branchname] <most recent commit message>
-  git show-branch "${remote_branch}" &> /dev/null
+  # - Remember upstream_ref formatted refs/remotes/<upstream>
+  git show-branch "${upstream_ref}" &> /dev/null
 }
 
 git_remote_branch_object_name () {
-  local remote_branch="$(_git_print_remote_branch_unambiguous "${1}" "${2}")"
+  local upstream_ref="$(_git_print_remote_branch_unambiguous "${1}" "${2}")"
 
   # Prints SHA on success, or repeats input and returns nonzero on failure,
   # unless --verify then doesn't repeat input to stdout.
-  # - Remember remote_branch formatted refs/remotes/<upstream>
-  git rev-parse --verify --end-of-options "${remote_branch}" 2> /dev/null
+  # - Remember upstream_ref formatted refs/remotes/<upstream>
+  git rev-parse --verify --end-of-options "${upstream_ref}" 2> /dev/null
 }
 
 # Prints refs/remotes/<remote>/<branch>.
