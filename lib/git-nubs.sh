@@ -252,7 +252,7 @@ git_sha_shorten () {
     string="$(git_HEAD_commit_sha)"
   fi
 
-  printf "${string}" | sed -E 's/^(.{'${maxlen}'}).*/\1/g'
+  printf "%s" "${string}" | sed -E 's/^(.{'${maxlen}'}).*/\1/g'
 }
 
 # ***
@@ -343,7 +343,7 @@ _git_print_remote_branch_unambiguous () {
     remote_branch="${remote}/${branch}"
   fi
 
-  printf "refs/remotes/$(echo "${remote_branch}" | sed 's#^refs/remotes/##')"
+  printf "%s" "refs/remotes/$(echo "${remote_branch}" | sed 's#^refs/remotes/##')"
 }
 
 git_remote_default_branch () {
@@ -465,7 +465,7 @@ print_parent_path_to_project_root () {
   ( [ "${depth_path}" = "." ] || [ "${depth_path}" = "" ] ) \
     && return 0 || true
 
-  printf "${depth_path}" | sed 's#\([^/]\+\)#..#g'
+  printf "%s" "${depth_path}" | sed 's#\([^/]\+\)#..#g'
 }
 
 # Check that the current directory exists in a Git repo.
@@ -786,7 +786,7 @@ git_latest_version_normal () {
 }
 
 git_latest_version_basetag_safe () {
-  git_latest_version_basetag || printf '0.0.0'
+  git_latest_version_basetag || printf "%s" "0.0.0"
 }
 
 # ***
@@ -1133,7 +1133,7 @@ git_tag_remote_verify_commit () {
 
   local git_cmd="git ls-remote --tags ${remote_name} ${tag_name}"
 
-  printf '%s' "Sending remote request: ‘${git_cmd}’..."
+  printf "%s" "Sending remote request: ‘${git_cmd}’..."
 
   local remote_tag_hash_and_path=""
 
