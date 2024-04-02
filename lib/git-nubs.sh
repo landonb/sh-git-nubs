@@ -307,6 +307,13 @@ git_number_of_commits () {
   git rev-list --count "${gitref}" "$@"
 }
 
+git_distance_between_commits () {
+  local gitref_lhs="${1:-HEAD}"
+  local gitref_rhs="${2:-HEAD}"
+
+  git rev-list --count ${gitref_lhs}..${gitref_rhs}
+}
+
 # ***
 
 git_remote_exists () {
