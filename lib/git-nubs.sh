@@ -12,7 +12,7 @@ git_branch_exists () {
   #   git rev-parse --verify --quiet HEAD
   # This works, but technically we should use rev-parse:
   #  git show-ref --verify --quiet refs/heads/${branch_name}
-  git rev-parse --verify refs/heads/${branch_name} > /dev/null 2>&1
+  git rev-parse --verify --end-of-options "refs/heads/${branch_name}" > /dev/null 2>&1
 }
 
 git_branch_name () {
@@ -105,7 +105,7 @@ git_commit_object_name () {
   local gitref="${1:-HEAD}"
   local opts="$2"
 
-  git rev-parse ${opts} "${gitref}"
+  git rev-parse ${opts} --verify --end-of-options "${gitref}^{commit}" 2> /dev/null
 }
 
 git_is_same_commit () {
@@ -212,7 +212,7 @@ git_tag_commit_object () {
 git_tag_exists () {
   local tag_name="$1"
 
-  git rev-parse --verify refs/tags/${tag_name} > /dev/null 2>&1
+  git rev-parse --verify --end-of-options "refs/tags/${tag_name}" > /dev/null 2>&1
 }
 
 git_tag_name_check_format () {
@@ -325,8 +325,10 @@ git_remote_branch_exists () {
 git_remote_branch_object_name () {
   local remote_branch="$(_git_print_remote_branch_unambiguous "${1}" "${2}")"
 
-  # Prints SHA on success, or repeats input and returns nonzero on failure
-  git rev-parse "${remote_branch}" 2> /dev/null
+  # Prints SHA on success, or repeats input and returns nonzero on failure,
+  # unless --verify then doesn't repeat input to stdout.
+  # - Remember remote_branch formatted refs/remotes/<upstream>
+  git rev-parse --verify --end-of-options "${remote_branch}" 2> /dev/null
 }
 
 # Prints refs/remotes/<remote>/<branch>.
