@@ -419,8 +419,8 @@ git_upstream_parse_names () {
 
   # ***
 
-  ! ${print_remote} || printf "${remote_name}"
-  ! ${print_branch} || printf "${branch_name}"
+  ! ${print_remote} || printf "%s" "${remote_name}"
+  ! ${print_branch} || printf "%s" "${branch_name}"
 }
 
 # The other opposite of `dirname`, `rootname`.
