@@ -150,7 +150,10 @@ git_tag_object_name () {
   local gitref="$1"
   local opts="$2"
 
-  [ -n "${gitref}" ] || return 0
+  if [ -z "${gitref}" ]; then
+
+    return 1
+  fi
 
   local says_git=""
   says_git="$(git rev-parse ${opts} refs/tags/${gitref} 2> /dev/null)"
