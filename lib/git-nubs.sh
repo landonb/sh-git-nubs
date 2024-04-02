@@ -49,7 +49,7 @@ git_branch_name () {
     exit_code=1
   fi
 
-  printf %s "${branch_name}"
+  printf "%s" "${branch_name}"
 
   return ${exit_code}
 }
