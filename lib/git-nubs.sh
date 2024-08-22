@@ -112,6 +112,11 @@ git_is_same_commit () {
   local lhs="$1"
   local rhs="$2"
 
+  if [ -z "${lhs}" ] || [ -z "${rhs}" ]; then
+
+    return 1
+  fi
+
   [ "$(git_commit_object_name "${lhs}")" = "$(git_commit_object_name "${rhs}")" ]
 }
 
