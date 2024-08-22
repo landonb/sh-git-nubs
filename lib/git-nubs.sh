@@ -425,7 +425,7 @@ git_upstream_parse_names () {
 
   # If one, then both, so say we all.
   # - These tests cover inputs like "foo" and "bar/".
-  if false\
+  if false \
     || [ -z "${remote_name}" ] \
     || [ -z "${branch_name}" ] \
     || [ "${remote_name}" = "${deprefixed}" ] \
