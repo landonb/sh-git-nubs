@@ -138,8 +138,8 @@ git_object_name_check_format () {
 # interface choice.
 # - E.g., searching for some/tag:
 #     git rev-parse --tags=some/tag
+#     git rev-parse --tags=refs/tags/some/tag
 #   won't actually match some/tag.
-#   - But it will match some/tag/name.
 #   To match some/tag, you have to glob it explicitly, e.g.,
 #      git rev-parse --tags=*some/tag
 #      git rev-parse --tags=some/tag*
