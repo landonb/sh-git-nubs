@@ -128,7 +128,7 @@ git_object_name_check_format () {
 
 # There are a few ways to find the object name (SHA) for a tag, including:
 #
-#   git rev-parse refs/tags/sometag
+#   git rev-parse refs/tags/some/tag
 #   git rev-parse --tags=*some/tag
 #   git show-ref --tags
 #
