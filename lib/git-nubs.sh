@@ -1133,6 +1133,48 @@ git_most_recent_version_tag () {
     | sed 's/\~.*//'
 }
 
+# Prints the smallest version tag found after a reference commit.
+# - Uses `--merged HEAD --no-merged <commit>` to keep the search
+#   to the current branch.
+# - If you wanted to search all branches, use --contains, which finds
+#   tags between ${gitref} and any head (so if you've rebased work after
+#   ${gitref} and abandoned tags in those other lines of work, --contains
+#   will find those tags), e.g.:
+#     git tag -l --contains "${gitref}" "[0-9]*" "v[0-9]*"
+
+git_smallest_version_tag_after () {
+  local gitref="${1:-HEAD}"
+
+  local smallest_patch="$( \
+    git tag -l --merged HEAD --no-merged "${gitref}" \
+      ${GITNUBS_VERSION_TAG_PATTERNS} \
+      | grep -E -e "${GITNUBS_RE_VERSPARTS}" \
+      | sort -V \
+      | head -n1
+  )"
+
+  # This is *ridonkulous*.
+  local smallest_including_alpha="$( \
+    git tag -l --merged HEAD --no-merged "${gitref}" \
+      "${smallest_patch}*" \
+      "${GITNUBS_PREFIX:-v}${smallest_patch}*" \
+      | grep -E -e "${GITNUBS_RE_VERSPARTS}" \
+      | grep -E -v "^${smallest_patch}$" \
+      | perl -ne "print if s/${GITNUBS_RE_VERSPARTS}/\6, \7, \2.\3.\5\6\7/" \
+      | sed '/^$/d' \
+      | sort -k1,1 -k2,2n \
+      | head -n1 \
+      | sed -E "s/^[^,]*, [^,]*, //"
+  )"
+
+  local smallest_version="${smallest_including_alpha}"
+  [ -n "${smallest_version}" ] || smallest_version="${smallest_patch}"
+
+  printf "%s" "${smallest_version}"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 git_since_most_recent_commit_epoch_ts () {
   git --no-pager log -1 --format=%at HEAD 2> /dev/null
 }
