@@ -117,7 +117,13 @@ git_is_same_commit () {
     return 1
   fi
 
-  [ "$(git_commit_object_name "${lhs}")" = "$(git_commit_object_name "${rhs}")" ]
+  local lhs_name
+  local rhs_name
+
+  true \
+    && lhs_name="$(git_commit_object_name "${lhs}")" \
+    && rhs_name="$(git_commit_object_name "${rhs}")" \
+    && [ "${lhs_name}" = "${rhs_name}" ]
 }
 
 git_object_name_check_format () {
