@@ -684,7 +684,7 @@ git_is_gpg_signed_since_commit () {
   local gitref="$1"
   local endref="${2:-HEAD}"
 
-  local rev_list_commits="HEAD"
+  local rev_list_commits="${endref}"
   if [ -n "${gitref}" ]; then
     rev_list_commits="${gitref}..${endref}"
   fi
