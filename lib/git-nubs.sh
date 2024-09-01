@@ -685,6 +685,16 @@ git_is_commit () {
 #         "X" for good but expired, "Y" for good made by expired key,
 #         "R" for good made by revoked key, "E" if sig cannot be checked
 #         (e.g. missing key) and "N" for no signature
+
+# ALTLY: Instead of using just 'HEAD' as rev range to include all commits,
+# we could instead use magic root-of-all-roots, e.g.,
+#
+#   # REFER: `printf '' | git hash-object -t tree --stdin`
+#   local GITNUBS_GIT_EMPTY_TREE="4b825dc642cb6eb9a060e54bf8d69288fbee4904"
+#
+#   git log --format="%G?" HEAD | wc -l
+#   git log --format="%G?" ${GITNUBS_GIT_EMPTY_TREE}..HEAD | wc -l
+
 git_is_gpg_signed_since_commit () {
   local gitref="$1"
   local endref="${2:-HEAD}"
