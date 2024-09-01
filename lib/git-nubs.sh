@@ -600,6 +600,13 @@ git_insist_nothing_staged () {
   return 1
 }
 
+# ***
+
+# Capture special tig %(commit) value that's used when Unstaged changes
+# or Staged changes is the selected revision. This lets tooling offload
+# the burden of probing and translating that value from the tig config.
+GITNUBS_SPECIAL_TIG_SHA_UNSTAGED="0000000000000000000000000000000000000000"
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # A few ideas to check for valid SHA1 object:
