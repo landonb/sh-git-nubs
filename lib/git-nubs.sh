@@ -695,16 +695,35 @@ git_is_commit () {
 #   git log --format="%G?" HEAD | wc -l
 #   git log --format="%G?" ${GITNUBS_GIT_EMPTY_TREE}..HEAD | wc -l
 
+# Interestingly, negative lookahead doesn't work with
+# --grep like it does with --author, e.g.,
+#   git log --perl-regexp --grep="^(?!(PRIVATE)).*\$"
+# doesn't work. But there's an --invert-grep option\
+# (yet no --invert-author option).
+# - Though --perl-regexp still works other than negative lookahead.
+
 git_is_gpg_signed_since_commit () {
   local gitref="$1"
   local endref="${2:-HEAD}"
+  local exclude_pattern="$3"
 
   local rev_list_commits="${endref}"
   if [ -n "${gitref}" ]; then
     rev_list_commits="${gitref}..${endref}"
   fi
 
-  ! git log --format="%G?" ${rev_list_commits} | grep -q -e 'N'
+  local invert_grep=""
+  if [ -n "${exclude_pattern}" ]; then
+    invert_grep="--invert-grep"
+  fi
+
+  ! git log \
+    --format="%G?" \
+    --grep="${exclude_pattern}" \
+      ${invert_grep} \
+      --perl-regexp \
+    ${rev_list_commits} \
+    | grep -q -e 'N'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
