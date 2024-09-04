@@ -247,20 +247,6 @@ git_branches_with_tag () {
   git branch --list --contains refs/tags/${tag_name} $@
 }
 
-# CALSO: git_most_recent_tag / git_most_recent_version_tag
-git_most_recent_tag () {
-  local gitref="$1"
-
-  local contains=""
-  if [ -n "${gitref}" ]; then
-    contains="--contains ${gitref}"
-  fi
-
-  git describe --tags --abbrev=0 ${contains} \
-    2> /dev/null \
-    | sed_remove_tag_suffix
-}
-
 # ***
 
 git_HEAD_commit_sha () {
@@ -864,8 +850,6 @@ GITNUBS_VERSION_TAG_PATTERNS="${GITNUBS_PREFIX}[0-9]* [0-9]*"
 
 GITNUBS_TAG_PATTERNS_TAGREFS="refs/tags/${GITNUBS_PREFIX}[0-9]* refs/tags/[0-9]*"
 
-GITNUBS_DESCRIBE_MATCH_PATTERNS="--match ${GITNUBS_PREFIX}[0-9]* --match [0-9]*"
-
 # Prints all tags that match: v[0-9]* [0-9]*
 _git_tag_list_prefilter () {
   git tag -l "$@" ${GITNUBS_VERSION_TAG_PATTERNS}
@@ -1162,30 +1146,49 @@ git_largest_version_tag_from_remote_normal () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# CALSO: git_most_recent_tag / git_most_recent_version_tag
-git_most_recent_version_tag () {
-  local gitref="$1"
+# BWARE: git-describe --contains will find tags in other branches,
+#        too, that diverge from gitref or any commit after.
+#
+#   GITNUBS_DESCRIBE_MATCH_PATTERNS="--match ${GITNUBS_PREFIX}[0-9]* --match [0-9]*"
+#
+#   git_most_recent_version_tag_contains () {
+#     local gitref="$1"
+#
+#     local contains=""
+#     if [ -n "${gitref}" ]; then
+#       contains="--contains ${gitref}"
+#     fi
+#
+#     git describe --tags --abbrev=0 ${contains} ${GITNUBS_DESCRIBE_MATCH_PATTERNS} \
+#       2> /dev/null \
+#       | sed_remove_tag_suffix
+#   }
+#
+#   git_most_recent_tag () {
+#     local gitref="$1"
+#
+#     local contains=""
+#     if [ -n "${gitref}" ]; then
+#       contains="--contains ${gitref}"
+#     fi
+#
+#     git describe --tags --abbrev=0 ${contains} \
+#       2> /dev/null \
+#       | sed_remove_tag_suffix
+#   }
+#
+#   # The git-describe --contains option will add a suffix to the tag name,
+#   # e.g., if the tag named 'foo' is 5 commits away from gitref, prints
+#   # "foo~5" (the fifth parent of foo, which can also be denoted "foo~~~~~").
+#   # - When the tag is on the current commit, prints ^0.
+#   #   - From `man git-rev-parse`: "<rev>ˆ0 means the commit itself and is
+#   #     used when <rev> is the object name of a tag object that refers to
+#   #     a commit object"
+#   sed_remove_tag_suffix () {
+#     sed 's/\(\~\|\^0\).*//'
+#   }
 
-  local contains=""
-  if [ -n "${gitref}" ]; then
-    contains="--contains ${gitref}"
-  fi
-
-  git describe --tags --abbrev=0 ${contains} ${GITNUBS_DESCRIBE_MATCH_PATTERNS} \
-    2> /dev/null \
-    | sed_remove_tag_suffix
-}
-
-# The git-describe --contains option will add a suffix to the tag name,
-# e.g., if the tag named 'foo' is 5 commits away from gitref, prints
-# "foo~5" (the fifth parent of foo, which can also be denoted "foo~~~~~").
-# - When the tag is on the current commit, prints ^0.
-#   - From `man git-rev-parse`: "<rev>ˆ0 means the commit itself and is
-#     used when <rev> is the object name of a tag object that refers to
-#     a commit object"
-sed_remove_tag_suffix () {
-  sed 's/\(\~\|\^0\).*//'
-}
+# ***
 
 # Prints the smallest version tag found after a reference commit.
 # - Uses `--merged HEAD --no-merged <commit>` to keep the search
