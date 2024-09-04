@@ -1188,6 +1188,82 @@ git_largest_version_tag_from_remote_normal () {
 #     sed 's/\(\~\|\^0\).*//'
 #   }
 
+git_most_recent_version_tag () {
+  local gitref="$1"
+
+  git_most_recent_tag "${gitref}" ${_limit_version:-true}
+}
+
+git_most_recent_tag () {
+  local gitref="$1"
+  local limit_version="${2:-false}"
+
+  local recent_tag=""
+
+  local no_merged=""
+  if [ -n "${gitref}" ]; then
+    no_merged="--no-merged ${gitref}"
+  fi
+
+  local tag_patterns=""
+  if ${limit_version}; then
+    tag_patterns="${GITNUBS_VERSION_TAG_PATTERNS}"
+  fi
+
+  # THANX: https://stackoverflow.com/a/71690022
+  #   https://stackoverflow.com/questions/71689439/
+  #     git-how-to-sort-tags-by-the-date-of-the-corresponding-commit
+  local tag_commit_objects
+  tag_commit_objects="$( \
+    git tag --format='%(objectname)^{}' --merged HEAD ${no_merged} \
+    ${tag_patterns} \
+    | git cat-file --batch-check \
+    | awk '$2=="commit" { print $1 }' \
+  )"
+
+  if [ -n "${tag_commit_objects}" ]; then
+    local latest_commit
+    latest_commit="$( \
+      echo "${tag_commit_objects}" \
+      | git log --stdin --no-walk --format=%H -1
+    )"
+
+    local existing_tags
+
+    if ! ${limit_version}; then
+      existing_tags="$(git tag --list --points-at "${latest_commit}")"
+
+      # Doesn't matter which tag, really.
+      recent_tag="$(echo "${recent_tags}" | head -n 1)"
+    else
+      existing_tags="$(git_versions_tagged_for_commit_object "${latest_commit}")"
+
+      local largest_basetag
+      largest_basetag="$( \
+        echo "${existing_tags}" \
+        | _pick_largest_basetag "${GITNUBS_RE_VERSPARTS}"
+      )"
+
+      if echo "${existing_tags}" | grep -q -e "^${largest_basetag}$"; then
+        recent_tag="${largest_basetag}"
+      else
+        # See similar pipeline below, git_smallest_version_tag_after
+        recent_tag="$( \
+          echo "${existing_tags}" \
+            | grep -E -e "^${largest_basetag}" \
+            | perl -ne "print if s/${GITNUBS_RE_VERSPARTS}/\6, \7, \2.\3.\5\6\7/" \
+            | sed '/^$/d' \
+            | sort -k1,1r -k2,2rn \
+            | head -n1 \
+            | sed -E "s/^[^,]*, [^,]*, //"
+        )"
+      fi
+    fi
+  fi
+
+  printf "%s" "${recent_tag}"
+}
+
 # ***
 
 # Prints the smallest version tag found after a reference commit.
@@ -1211,6 +1287,7 @@ git_smallest_version_tag_after () {
   )"
 
   # This is *ridonkulous*.
+  # - See similar pipeline above, git_most_recent_tag
   local smallest_including_alpha
   smallest_including_alpha="$( \
     git tag -l --merged HEAD --no-merged "${gitref}" \
