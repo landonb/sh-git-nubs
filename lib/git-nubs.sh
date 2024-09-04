@@ -1208,7 +1208,8 @@ git_smallest_version_tag_after () {
   )"
 
   # This is *ridonkulous*.
-  local smallest_including_alpha="$( \
+  local smallest_including_alpha
+  smallest_including_alpha="$( \
     git tag -l --merged HEAD --no-merged "${gitref}" \
       "${smallest_patch}*" \
       "${GITNUBS_PREFIX:-v}${smallest_patch}*" \
