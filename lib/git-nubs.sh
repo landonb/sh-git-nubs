@@ -1234,7 +1234,7 @@ git_most_recent_tag () {
       existing_tags="$(git tag --list --points-at "${latest_commit}")"
 
       # Doesn't matter which tag, really.
-      recent_tag="$(echo "${recent_tags}" | head -n 1)"
+      recent_tag="$(echo "${existing_tags}" | head -n 1)"
     else
       existing_tags="$(git_versions_tagged_for_commit_object "${latest_commit}")"
 
