@@ -44,6 +44,18 @@ git_branch_name () {
     git rev-parse --abbrev-ref=loose HEAD 2> /dev/null \
   ); then
     # Unnamed branch, e.g., before first commit after `git init .`.
+    # - See also:
+    #     $ git init .
+    #     $ git log -1
+    #     fatal: your current branch 'main' does not have any commits yet
+    #     # Or whatever branch is named in .git/HEAD
+    # - Speaking of which, we could use branch name from .git/HEAD:
+    #     $ cat .git/HEAD
+    #     ref: refs/heads/main
+    #   but this code has always used "<?!>" and I think it's
+    #   a better clue to the user than printing a normal branch
+    #   name (i.e., so user can see there's no branch without
+    #   testing for nonzero return).
     branch_name="<?!>"
 
     exit_code=1
