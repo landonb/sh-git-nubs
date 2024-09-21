@@ -356,7 +356,12 @@ git_number_of_commits () {
   local gitref="${1:-HEAD}"
   [ $# -lt 1 ] || shift
 
-  git rev-list --count "${gitref}" "$@"
+  if ! git_branch_name > /dev/null; then
+    # Fresh repo, e.g., `git init . && git_number_of_commits`.
+    echo "0"
+  else
+    git rev-list --count "${gitref}" "$@"
+  fi
 }
 
 git_distance_between_commits () {
