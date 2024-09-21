@@ -160,6 +160,12 @@ git_object_name_check_format () {
   git check-ref-format "refs/tags/${tag_name}"
 }
 
+git_object_type () {
+  local gitref="$1"
+
+  git cat-file -t "$(git rev-parse "${gitref}")"
+}
+
 # There are a few ways to find the object name (SHA) for a tag, including:
 #
 #   git rev-parse refs/tags/some/tag
