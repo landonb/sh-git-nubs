@@ -764,6 +764,68 @@ git_is_gpg_signed_since_commit () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# UCASE: For git-format-patch and git-am to share the same commit SHAs,
+# set committer date, name and email same as author date, name and email.
+#
+# USAGE: To update all commits:
+#   git_rebase_set_committer_same_as_author --root
+# Or commits since a ref:
+#   git_rebase_set_committer_same_as_author <gitref>
+
+# CPYST: See latest author and commit dates, names, and emails:
+#   gnp log --format="%ad %an <%ae>%n%cd %cn <%ce>" -1
+
+# MAYBE: Prefer `git log -1` vs. `git log --no-walk`, for readability.
+
+git_rebase_set_committer_same_as_author () {
+  local gitref="$1"
+
+  if [ -z "${gitref}" ]; then
+    >&2 echo "ERROR: Please specify a rebase ref, or \"--root\""
+
+    return 1
+  fi
+
+  local interactive=""
+  if ${GITNUBS_REBASE_COMMITTER_INTERACTIVE:-false}; then
+    # USAGE: Adds -i so you can audit the rebase-todo.
+    interactive="-i"
+  fi
+
+  git rebase ${interactive} \
+    --exec "$( \
+      echo '
+        env
+          GIT_COMMITTER_DATE="$(git log --no-walk --format=%ad)"
+          GIT_COMMITTER_NAME="$(git log --no-walk --format=%an)"
+          GIT_COMMITTER_EMAIL="$(git log --no-walk --format=%ae)"
+            git commit --amend --allow-empty --no-edit --no-verify;
+      ' | sed 's/^ \+/ /' | tr -d $'\n')" \
+    ${gitref}
+}
+
+# ***
+
+git_oldest_commit_with_committer_different_than_author () {
+  local gitref="$1"
+  local endref="${2:-HEAD}"
+
+  local gitrange
+  if [ -n "${gitref}" ] && [ "${gitref}" != "${GIT_EMPTY_TREE}" ]; then
+    gitrange="${gitref}.."
+  fi
+  gitrange="${gitrange}${endref}"
+
+  git log --format="%H %ad %an <%ae>%n%H %cd %cn <%ce>" "${gitrange}" \
+    | tac \
+    | uniq \
+    | awk '{ print $1 }' \
+    | uniq -d \
+    | head -n 1
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # LATER/2023-05-28: Leaving __THE_HARD_WAY variant: I want to add
 # tests, and I want to verify the 2 approaches produce same results.
 
