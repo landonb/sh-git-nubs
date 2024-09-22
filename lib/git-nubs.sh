@@ -166,6 +166,12 @@ git_object_type () {
   git cat-file -t "$(git rev-parse "${gitref}")"
 }
 
+git_is_valid_object () {
+  local gitref="$1"
+
+  git rev-parse "${gitref}" > /dev/null 2>&1
+}
+
 # There are a few ways to find the object name (SHA) for a tag, including:
 #
 #   git rev-parse refs/tags/some/tag
