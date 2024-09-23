@@ -172,6 +172,37 @@ git_is_valid_object () {
   git rev-parse "${gitref}" > /dev/null 2>&1
 }
 
+git_is_same_object () {
+  local lhs="$1"
+  local rhs="$2"
+
+  if [ -z "${lhs}" ] || [ -z "${rhs}" ]; then
+
+    return 1
+  fi
+
+  local lhs_name
+  local rhs_name
+
+  true \
+    && lhs_name="$(git rev-parse "${lhs}" 2> /dev/null)" \
+    && rhs_name="$(git rev-parse "${rhs}" 2> /dev/null)" \
+    && [ "${lhs_name}" = "${rhs_name}" ]
+}
+
+# ***
+
+# REFER: `printf '' | git hash-object -t tree --stdin`
+GIT_EMPTY_TREE="4b825dc642cb6eb9a060e54bf8d69288fbee4904"
+
+git_is_empty_tree () {
+  local gitref="$1"
+
+  git_is_same_object "${gitref}" "${GIT_EMPTY_TREE}"
+}
+
+# ***
+
 # There are a few ways to find the object name (SHA) for a tag, including:
 #
 #   git rev-parse refs/tags/some/tag
